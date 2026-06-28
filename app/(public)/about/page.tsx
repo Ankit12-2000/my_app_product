@@ -8,9 +8,11 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-bold">About MoortiBazaar</h1>
       <p className="mt-4 text-lg text-clay-700">
-        MoortiBazaar is a single marketplace bringing together India&apos;s finest statue and idol
-        makers. From Makrana marble to Moradabad brass to South Indian stone sculptors, we connect
-        you directly with the artisans behind every piece.
+        MoortiBazaar is Jaipur&apos;s trusted marketplace for premium marble statues and handcrafted
+        idols. We bring together the finest artisans and skilled sculptors from Jaipur, connecting
+        you directly with the creators of authentic marble murtis, temple idols, garden statues,
+        and custom sculptures. Every piece is handcrafted with exceptional craftsmanship, quality,
+        and devotion.
       </p>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-3">
