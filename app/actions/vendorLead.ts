@@ -56,7 +56,8 @@ export async function submitVendorLead(
   const sb = await createSupabaseServerClient();
   const { error } = await sb.from("vendor_leads").insert(payload);
   if (error) {
-    return { ok: false, message: "Something went wrong. Please try again." };
+    console.error("Vendor lead insert error:", error.message);
+    return { ok: false, message: `Error: ${error.message}` };
   }
 
   return { ok: true, message: "Registration received! Our team will contact you within 24-48 hours." };

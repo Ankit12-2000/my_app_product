@@ -190,6 +190,7 @@ create policy "public read shops"       on shops          for select using (is_a
 create policy "public read products"    on products       for select using (is_approved);
 create policy "public read images"      on product_images for select using (true);
 create policy "public read reviews"     on reviews        for select using (is_approved);
+create policy "public submit review"    on reviews        for insert with check (true);
 create policy "public read blogs"       on blogs          for select using (is_published);
 create policy "public read banners"     on banners        for select using (is_active);
 

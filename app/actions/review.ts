@@ -45,7 +45,8 @@ export async function submitReview(
   const sb = await createSupabaseServerClient();
   const { error } = await sb.from("reviews").insert(payload);
   if (error) {
-    return { ok: false, message: "Something went wrong. Please try again." };
+    console.error("Review insert error:", error.message);
+    return { ok: false, message: `Error: ${error.message}` };
   }
 
   return { ok: true, message: "Review submitted! Thank you for your feedback." };
