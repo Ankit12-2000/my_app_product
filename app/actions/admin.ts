@@ -83,18 +83,25 @@ export async function setProductFeatured(formData: FormData) {
 
 // ---------- Categories ----------
 
-export async function createCategory(formData: FormData) {
+export interface CategoryState {
+  ok?: boolean;
+  message?: string;
+}
+
+export async function createCategory(_prev: CategoryState, formData: FormData): Promise<CategoryState> {
   await requireAdmin();
   const sb = await createSupabaseServerClient();
   const name = String(formData.get("name") ?? "").trim();
-  if (!name) return;
-  await sb.from("categories").insert({
+  if (!name) return { ok: false, message: "Category name is required." };
+  const { error } = await sb.from("categories").insert({
     name,
     slug: slugify(name),
     description: String(formData.get("description") ?? "").trim() || null,
     image_url: String(formData.get("image_url") ?? "").trim() || null,
   });
+  if (error) return { ok: false, message: error.message };
   revalidatePath("/admin/taxonomy");
+  return { ok: true, message: "Category added." };
 }
 
 export async function deleteCategory(formData: FormData) {

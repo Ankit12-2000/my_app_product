@@ -1,11 +1,11 @@
 import { requireAdmin } from "@/lib/auth";
 import { listCategoriesAdmin, listMaterialsAdmin } from "@/lib/data/admin";
 import {
-  createCategory,
   createMaterial,
   deleteCategory,
   deleteMaterial,
 } from "@/app/actions/admin";
+import { CategoryForm } from "@/components/admin/CategoryForm";
 
 export default async function TaxonomyPage() {
   await requireAdmin();
@@ -36,17 +36,7 @@ export default async function TaxonomyPage() {
               </li>
             ))}
           </ul>
-          <form action={createCategory} className="mt-4 space-y-2 border-t border-clay-100 pt-4">
-            <input name="name" placeholder="Category name *" required
-              className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400" />
-            <input name="description" placeholder="Description"
-              className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400" />
-            <input name="image_url" placeholder="Image URL"
-              className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400" />
-            <button className="rounded-full bg-saffron-600 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-700">
-              Add category
-            </button>
-          </form>
+          <CategoryForm />
         </section>
 
         {/* Materials */}
