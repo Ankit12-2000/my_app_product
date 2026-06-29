@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-
 export function ProductActions({
   productName,
   productUrl,
@@ -34,40 +32,54 @@ export function ProductActions({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {phoneClean && (
+    <div className="rounded-2xl border border-clay-100 bg-white p-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {phoneClean && (
+          <a
+            href={`tel:${phoneClean}`}
+            className="group flex flex-col items-center gap-1.5 rounded-xl border border-clay-100 bg-clay-50 px-3 py-3 text-center transition hover:border-blue-200 hover:bg-blue-50"
+          >
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-blue-100 text-lg transition group-hover:bg-blue-200">
+              📞
+            </span>
+            <span className="text-xs font-semibold text-clay-900">Call Now</span>
+          </a>
+        )}
+
+        {waLink && (
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col items-center gap-1.5 rounded-xl border border-clay-100 bg-clay-50 px-3 py-3 text-center transition hover:border-green-200 hover:bg-green-50"
+          >
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-green-100 text-lg transition group-hover:bg-green-200">
+              💬
+            </span>
+            <span className="text-xs font-semibold text-clay-900">WhatsApp</span>
+          </a>
+        )}
+
         <a
-          href={`tel:${phoneClean}`}
-          className="flex items-center gap-2 rounded-full border border-clay-200 px-4 py-2.5 text-sm font-semibold text-clay-900 transition hover:bg-clay-50"
+          href="#inquiry"
+          className="group flex flex-col items-center gap-1.5 rounded-xl border border-clay-100 bg-clay-50 px-3 py-3 text-center transition hover:border-saffron-200 hover:bg-saffron-50"
         >
-          📞 Call Now
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-saffron-100 text-lg transition group-hover:bg-saffron-200">
+            ✉️
+          </span>
+          <span className="text-xs font-semibold text-clay-900">Inquiry</span>
         </a>
-      )}
 
-      {waLink && (
-        <a
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+        <button
+          onClick={handleShare}
+          className="group flex flex-col items-center gap-1.5 rounded-xl border border-clay-100 bg-clay-50 px-3 py-3 text-center transition hover:border-purple-200 hover:bg-purple-50"
         >
-          💬 WhatsApp
-        </a>
-      )}
-
-      <a
-        href="#inquiry"
-        className="flex items-center gap-2 rounded-full bg-saffron-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-saffron-700"
-      >
-        ✉️ Send Inquiry
-      </a>
-
-      <button
-        onClick={handleShare}
-        className="flex items-center gap-2 rounded-full border border-clay-200 px-4 py-2.5 text-sm font-semibold text-clay-900 transition hover:bg-clay-50"
-      >
-        🔗 Share
-      </button>
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-purple-100 text-lg transition group-hover:bg-purple-200">
+            🔗
+          </span>
+          <span className="text-xs font-semibold text-clay-900">Share</span>
+        </button>
+      </div>
     </div>
   );
 }
