@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { InquiryForm } from "@/components/InquiryForm";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductActions } from "@/components/ProductActions";
 import { Thumb } from "@/components/Thumb";
 import { StarRating } from "@/components/StarRating";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/queries";
@@ -125,14 +126,14 @@ export default async function ProductPage({
             </Link>
           )}
 
-          {/* Quick inquiry button - mobile only */}
+          {/* Action buttons */}
           {product.shop && (
-            <a
-              href="#inquiry"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-saffron-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-saffron-700 lg:hidden"
-            >
-              Send Inquiry
-            </a>
+            <ProductActions
+              productName={product.name}
+              productUrl={`https://moortibazaar.com/products/${product.slug}`}
+              phone={product.shop.phone}
+              whatsapp={product.shop.whatsapp}
+            />
           )}
         </div>
       </div>
