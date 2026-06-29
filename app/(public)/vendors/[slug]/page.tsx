@@ -85,6 +85,19 @@ export default async function VendorPage({
                   <span className="text-white/30">•</span>
                   <StarRating rating={shop.rating} count={shop.review_count} size="md" />
                 </div>
+                {/* Hero action buttons */}
+                <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+                  {shop.phone && (
+                    <a href={`tel:${shop.phone}`} className="flex items-center gap-1.5 rounded-lg bg-white/20 px-3 py-2 text-xs font-bold text-white backdrop-blur-sm transition hover:bg-white/30 sm:px-4 sm:py-2.5 sm:text-sm">
+                      📞 Call Now
+                    </a>
+                  )}
+                  {shop.whatsapp && (
+                    <a href={`https://wa.me/${shop.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-white shadow-lg transition hover:bg-green-600 sm:px-4 sm:py-2.5 sm:text-sm">
+                      💬 WhatsApp
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </div>
