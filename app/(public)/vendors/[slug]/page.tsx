@@ -131,17 +131,6 @@ export default async function VendorPage({
           <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
             {/* Left */}
             <div className="space-y-10 sm:space-y-14">
-              {/* About */}
-              {shop.description && (
-                <section>
-                  <h2 className="flex items-center gap-2 text-lg font-extrabold text-clay-900 sm:items-center sm:gap-3 sm:text-2xl">
-                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-saffron-100 text-sm sm:h-10 sm:w-10 sm:rounded-xl sm:text-lg">🙏</span>
-                    About Us
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-clay-600 sm:mt-5 sm:text-base">{shop.description}</p>
-                </section>
-              )}
-
               {/* Products */}
               <section>
                 <div className="flex items-end justify-between border-b border-clay-100 pb-3 sm:pb-4">
@@ -164,6 +153,17 @@ export default async function VendorPage({
                   </div>
                 )}
               </section>
+
+              {/* About */}
+              {shop.description && (
+                <section>
+                  <h2 className="flex items-center gap-2 text-lg font-extrabold text-clay-900 sm:items-center sm:gap-3 sm:text-2xl">
+                    <span className="grid h-8 w-8 place-items-center rounded-lg bg-saffron-100 text-sm sm:h-10 sm:w-10 sm:rounded-xl sm:text-lg">🙏</span>
+                    About Us
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-clay-600 sm:mt-5 sm:text-base">{shop.description}</p>
+                </section>
+              )}
 
               {/* Inquiry Form - Mobile only (after products) */}
               <div className="lg:hidden">
