@@ -39,7 +39,7 @@ export default async function VendorPage({
   return (
     <div>
       {/* Full-screen Hero */}
-      <section className="relative flex min-h-[70vh] items-end overflow-hidden">
+      <section className="relative flex min-h-[45vh] items-end overflow-hidden sm:min-h-[50vh]">
         <Thumb
           src={shop.banner_url}
           alt=""
