@@ -77,6 +77,16 @@ export default async function ProductPage({
             </p>
           </div>
 
+          {/* Action buttons - top */}
+          {product.shop && (
+            <ProductActions
+              productName={product.name}
+              productUrl={`https://moortibazaar.com/products/${product.slug}`}
+              phone={product.shop.phone}
+              whatsapp={product.shop.whatsapp}
+            />
+          )}
+
           {product.description && (
             <p className="text-sm leading-relaxed text-clay-600 sm:text-base">{product.description}</p>
           )}
@@ -124,16 +134,6 @@ export default async function ProductPage({
               </div>
               <StarRating rating={product.shop.rating} />
             </Link>
-          )}
-
-          {/* Action buttons */}
-          {product.shop && (
-            <ProductActions
-              productName={product.name}
-              productUrl={`https://moortibazaar.com/products/${product.slug}`}
-              phone={product.shop.phone}
-              whatsapp={product.shop.whatsapp}
-            />
           )}
         </div>
       </div>
