@@ -284,8 +284,8 @@ export default async function PersonalShopPage({
               </div>
               <div className="relative">
                 {shop.banner_url ? (
-                  <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-                    <Thumb src={shop.banner_url} alt={shop.name} seed={`${shop.slug}-about`} icon={null} className="aspect-[4/3] w-full object-cover" />
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-2xl">
+                    <Thumb src={shop.banner_url} alt={shop.name} seed={`${shop.slug}-about`} icon={null} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
                   </div>
                 ) : (
                   <div className="flex aspect-[4/3] items-center justify-center rounded-3xl bg-saffron-50 text-6xl shadow-2xl">
