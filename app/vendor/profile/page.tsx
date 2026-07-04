@@ -11,7 +11,7 @@ export default async function ShopProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Shop Profile</h1>
         {shop.is_approved && (
-          <Link href={`/vendors/${shop.slug}`} className="text-sm text-saffron-700 hover:underline">
+          <Link href={`/shop/${shop.slug}`} className="text-sm text-saffron-700 hover:underline">
             View public page ↗
           </Link>
         )}

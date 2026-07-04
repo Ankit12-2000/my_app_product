@@ -63,7 +63,7 @@ export default async function AdminVendorsPage() {
                         </button>
                       </form>
                       {s.is_approved && (
-                        <Link href={`/vendors/${s.slug}`} className="text-xs text-saffron-700 hover:underline">
+                        <Link href={`/shop/${s.slug}`} className="text-xs text-saffron-700 hover:underline">
                           Public
                         </Link>
                       )}

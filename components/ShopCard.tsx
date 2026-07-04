@@ -6,7 +6,7 @@ import { Thumb } from "./Thumb";
 export function ShopCard({ shop }: { shop: Shop }) {
   return (
     <Link
-      href={`/vendors/${shop.slug}`}
+      href={`/shop/${shop.slug}`}
       className="group overflow-hidden rounded-2xl border border-clay-100 bg-white transition hover:shadow-lg"
     >
       <div className="relative h-28 overflow-hidden bg-clay-100">
