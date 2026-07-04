@@ -15,8 +15,11 @@ export default async function QuotationDetailPage({
   if (!quotation) notFound();
 
   return (
-    <div className="space-y-4">
-      <Link href="/vendor/quotations" className="text-sm text-saffron-700 hover:underline print:hidden">
+    <div className="space-y-5">
+      <Link
+        href="/vendor/quotations"
+        className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-saffron-700 transition hover:bg-saffron-50 print:hidden"
+      >
         ← Back to quotations
       </Link>
       <QuotationBuilder quotation={quotation} shop={shop} />
