@@ -146,42 +146,6 @@ export default async function PersonalShopPage({
         </div>
       </section>
 
-      {/* ===== TRUST BAR ===== */}
-      <section className="border-b border-clay-100 bg-white pt-16 sm:pt-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron-50 text-2xl">
-                🏺
-              </div>
-              <p className="mt-3 text-2xl font-extrabold text-clay-900">{products.length}+</p>
-              <p className="text-sm text-clay-500">Handcrafted Products</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron-50 text-2xl">
-                ⭐
-              </div>
-              <p className="mt-3 text-2xl font-extrabold text-clay-900">{avgRating}</p>
-              <p className="text-sm text-clay-500">Customer Rating</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-saffron-50 text-2xl">
-                💬
-              </div>
-              <p className="mt-3 text-2xl font-extrabold text-clay-900">{reviews.length}</p>
-              <p className="text-sm text-clay-500">Happy Reviews</p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-2xl">
-                🚚
-              </div>
-              <p className="mt-3 text-2xl font-extrabold text-green-600">Pan India</p>
-              <p className="text-sm text-clay-500">Delivery Available</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ===== PRODUCTS SECTION ===== */}
       <section id="products" className="bg-white py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -210,6 +174,34 @@ export default async function PersonalShopPage({
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ===== TRUST BAR ===== */}
+      <section className="border-y border-clay-100 bg-clay-50 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">🏺</div>
+              <p className="mt-3 text-2xl font-extrabold text-clay-900">{products.length}+</p>
+              <p className="text-sm text-clay-500">Handcrafted Products</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">⭐</div>
+              <p className="mt-3 text-2xl font-extrabold text-clay-900">{avgRating}</p>
+              <p className="text-sm text-clay-500">Customer Rating</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">💬</div>
+              <p className="mt-3 text-2xl font-extrabold text-clay-900">{reviews.length}</p>
+              <p className="text-sm text-clay-500">Happy Reviews</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">🚚</div>
+              <p className="mt-3 text-2xl font-extrabold text-green-600">Pan India</p>
+              <p className="text-sm text-clay-500">Delivery Available</p>
+            </div>
+          </div>
         </div>
       </section>
 

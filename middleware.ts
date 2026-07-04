@@ -25,20 +25,24 @@ export async function middleware(request: NextRequest) {
 
   const subdomain = getSubdomain(hostname);
 
-  // If a subdomain is detected, rewrite to /shop/[slug]
+  // If a subdomain is detected, only rewrite root path to /shop/[slug]
   if (subdomain) {
-    const url = request.nextUrl.clone();
-    // Allow /api, /_next, static files to pass through on subdomains
+    // Allow all non-root paths to pass through normally
+    // (products, categories, api, etc. work as-is)
     if (
-      pathname.startsWith("/api") ||
-      pathname.startsWith("/_next") ||
-      pathname.startsWith("/favicon") ||
-      pathname.match(/\.(svg|png|jpg|jpeg|gif|webp|ico)$/)
+      pathname !== "/" &&
+      !pathname.startsWith("/api") &&
+      !pathname.startsWith("/_next")
     ) {
       return await updateSession(request);
     }
-    url.pathname = `/shop/${subdomain}`;
-    return NextResponse.rewrite(url);
+
+    // Only rewrite root "/" to the shop page
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = `/shop/${subdomain}`;
+      return NextResponse.rewrite(url);
+    }
   }
 
   return await updateSession(request);
