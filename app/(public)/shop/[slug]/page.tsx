@@ -79,113 +79,69 @@ export default async function PersonalShopPage({
       </nav>
 
       {/* ===== HERO SECTION ===== */}
-      <section className="relative min-h-[70vh] overflow-hidden bg-clay-900 sm:min-h-[80vh]">
+      <section className="relative min-h-[55vh] overflow-hidden bg-clay-900 sm:min-h-[65vh]">
         {/* Banner image */}
         {shop.banner_url && (
           <div className="absolute inset-0">
-            <Thumb
-              src={shop.banner_url}
-              alt=""
-              seed={`${shop.slug}-banner`}
-              icon={null}
-              fill
-              priority
-              className="object-cover"
-            />
+            <Thumb src={shop.banner_url} alt="" seed={`${shop.slug}-banner`} icon={null} fill priority className="object-cover" />
           </div>
         )}
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-clay-900 via-clay-900/60 to-clay-900/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-clay-900/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-clay-900 via-clay-900/50 to-clay-900/20" />
 
-        {/* Hero content */}
-        <div className="relative z-10 flex min-h-[70vh] items-end pb-16 sm:min-h-[80vh] sm:items-center sm:pb-0">
+        {/* Hero content — centered */}
+        <div className="relative z-10 flex min-h-[55vh] items-center sm:min-h-[65vh]">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-            <div className="max-w-2xl">
-              {/* Verified badge */}
-              {shop.is_approved && (
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-green-500/20 px-4 py-1.5 text-xs font-bold text-green-400 ring-1 ring-green-500/30 backdrop-blur-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                  Verified Artisan
-                </div>
-              )}
-
-              {/* Shop name */}
-              <h1 className="text-4xl font-extrabold text-white drop-shadow-2xl sm:text-6xl lg:text-7xl">
-                {shop.name}
-              </h1>
-
-              {/* Tagline */}
-              {shop.tagline && (
-                <p className="mt-4 max-w-lg text-lg text-white/70 sm:text-xl">
-                  {shop.tagline}
-                </p>
-              )}
-
-              {/* Location & rating */}
-              <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-white/60">
-                <span className="flex items-center gap-1.5">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                  </svg>
-                  {shop.city}{shop.state ? `, ${shop.state}` : ""}
+            <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:text-left">
+              {/* Logo */}
+              <div className="shrink-0">
+                <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-4 border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm sm:h-28 sm:w-28 sm:rounded-3xl">
+                  <Thumb src={shop.logo_url} alt={shop.name} seed={shop.slug} icon="🏪" width={112} height={112} className="object-cover" />
                 </span>
-                <span className="h-1 w-1 rounded-full bg-white/30" />
-                <StarRating rating={shop.rating} count={shop.review_count} size="md" />
               </div>
 
-              {/* CTA buttons */}
-              <div className="mt-8 flex flex-wrap gap-3">
-                {shop.phone && (
-                  <a
-                    href={`tel:${shop.phone}`}
-                    className="group inline-flex items-center gap-2.5 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-clay-900 shadow-2xl transition hover:bg-clay-50 hover:shadow-3xl"
-                  >
-                    <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                    </svg>
-                    Call Now
-                  </a>
+              {/* Text */}
+              <div>
+                {shop.is_approved && (
+                  <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-green-500/20 px-3 py-1 text-[10px] font-bold text-green-400 ring-1 ring-green-500/30 backdrop-blur-sm sm:text-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                    Verified Artisan
+                  </div>
                 )}
-                {shop.whatsapp && (
-                  <a
-                    href={`https://wa.me/${shop.whatsapp.replace(/[^\d]/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2.5 rounded-2xl bg-green-500 px-6 py-3.5 text-sm font-bold text-white shadow-2xl shadow-green-500/30 transition hover:bg-green-600 hover:shadow-3xl"
-                  >
-                    <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    WhatsApp
-                  </a>
+                <h1 className="text-3xl font-extrabold text-white drop-shadow-2xl sm:text-5xl lg:text-6xl">
+                  {shop.name}
+                </h1>
+                {shop.tagline && (
+                  <p className="mt-2 max-w-lg text-base text-white/70 sm:mt-3 sm:text-lg">
+                    {shop.tagline}
+                  </p>
                 )}
-                <a
-                  href="#contact"
-                  className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-white/20 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                  </svg>
-                  Send Inquiry
-                </a>
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-white/60 sm:justify-start sm:text-sm">
+                  <span className="flex items-center gap-1">
+                    📍 {shop.city}{shop.state ? `, ${shop.state}` : ""}
+                  </span>
+                  <span className="h-1 w-1 rounded-full bg-white/30" />
+                  <StarRating rating={shop.rating} count={shop.review_count} size="md" />
+                </div>
+
+                {/* CTA buttons */}
+                <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:justify-start">
+                  {shop.phone && (
+                    <a href={`tel:${shop.phone}`} className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-clay-900 shadow-lg transition hover:bg-clay-50">
+                      📞 Call Now
+                    </a>
+                  )}
+                  {shop.whatsapp && (
+                    <a href={`https://wa.me/${shop.whatsapp.replace(/[^\d]/g, "")}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-green-500/30 transition hover:bg-green-600">
+                      💬 WhatsApp
+                    </a>
+                  )}
+                  <a href="#contact" className="inline-flex items-center gap-2 rounded-xl border-2 border-white/25 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/10">
+                    ✉️ Send Inquiry
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Floating logo badge */}
-        <div className="absolute bottom-0 left-1/2 z-20 -translate-x-1/2 translate-y-1/2 sm:left-8 sm:translate-x-0">
-          <div className="relative">
-            <span className="grid h-24 w-24 place-items-center overflow-hidden rounded-3xl border-4 border-white bg-white shadow-2xl sm:h-32 sm:w-32">
-              <Thumb src={shop.logo_url} alt={shop.name} seed={shop.slug} icon="🏪" width={128} height={128} className="object-cover" />
-            </span>
-            {shop.is_approved && (
-              <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border-2 border-white bg-green-500 text-xs text-white shadow-lg sm:h-8 sm:w-8">
-                ✓
-              </span>
-            )}
           </div>
         </div>
       </section>
