@@ -5,11 +5,19 @@ import { Header } from "@/components/Header";
 function isSubdomain(host: string): boolean {
   const hostname = host.split(":")[0];
   const parts = hostname.split(".");
-  if (parts.length >= 2) {
+  if (parts.length < 2) return false;
+  const lastTwo = parts.slice(-2).join(".");
+  const isProd = lastTwo === "moortibazaar.com";
+  const isDev = lastTwo === "localhost" && parts.length === 2;
+  if (!isProd && !isDev) return false;
+  if (isProd && parts.length >= 3) {
     const first = parts[0];
-    if (first && !["www", "app", "api", "mail", "admin", "localhost", "moortibazaar"].includes(first)) {
+    if (first && !["www", "app", "api", "mail", "admin"].includes(first)) {
       return true;
     }
+  }
+  if (isDev && parts[0] !== "localhost") {
+    return true;
   }
   return false;
 }
