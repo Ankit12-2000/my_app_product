@@ -4,18 +4,26 @@ import { updateSession } from "@/lib/supabase/middleware";
 const ROOT_DOMAIN = "moortibazaar.com";
 
 function getSubdomain(hostname: string): string | null {
-  // Strip port (localhost:3000 → localhost)
   const host = hostname.split(":")[0];
   const parts = host.split(".");
-  // demo-shop.moortibazaar.com → demo-shop
-  // demo-shop.localhost → demo-shop (dev)
-  if (parts.length >= 2) {
-    const potentialSubdomain = parts[0];
-    // Ignore www, app, api, mail etc.
-    if (potentialSubdomain && !["www", "app", "api", "mail", "admin", "localhost", "moortibazaar"].includes(potentialSubdomain)) {
+  if (parts.length < 2) return null;
+
+  const lastTwo = parts.slice(-2).join(".");
+  const isProd = lastTwo === "moortibazaar.com";
+  const isDev = lastTwo === "localhost" && parts.length === 2;
+
+  if (!isProd && !isDev) return null;
+
+  const potentialSubdomain = parts[0];
+  if (isProd && parts.length >= 3) {
+    if (potentialSubdomain && !["www", "app", "api", "mail", "admin"].includes(potentialSubdomain)) {
       return potentialSubdomain;
     }
   }
+  if (isDev && potentialSubdomain && potentialSubdomain !== "localhost") {
+    return potentialSubdomain;
+  }
+
   return null;
 }
 
