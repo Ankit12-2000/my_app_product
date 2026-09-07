@@ -13,13 +13,15 @@ export function isRealImage(url?: string | null): boolean {
 }
 
 // Full Tailwind class strings are listed literally so they survive purging.
+// Soft, low-saturation tiles: a placeholder should read as "photo pending",
+// never compete with the real product photography around it.
 const GRADIENTS = [
-  "from-saffron-400 to-saffron-700",
-  "from-amber-400 to-orange-600",
-  "from-orange-400 to-rose-600",
-  "from-rose-400 to-saffron-600",
-  "from-amber-500 to-saffron-700",
-  "from-saffron-500 to-clay-700",
+  "from-saffron-50 via-clay-50 to-clay-100",
+  "from-clay-50 via-saffron-50 to-saffron-100",
+  "from-amber-50 via-clay-50 to-clay-200",
+  "from-clay-100 via-clay-50 to-saffron-50",
+  "from-rose-50 via-clay-50 to-clay-100",
+  "from-clay-50 via-clay-100 to-clay-200",
 ];
 
 export function tileGradient(seed: string): string {

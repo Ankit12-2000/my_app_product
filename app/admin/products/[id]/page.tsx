@@ -5,10 +5,23 @@ import { getProductAdmin } from "@/lib/data/admin";
 import { setProductApproval, setProductFeatured } from "@/app/actions/admin";
 import { Thumb } from "@/components/Thumb";
 import { ProductGallery } from "@/components/ProductGallery";
-import { priceLabel, primaryImage } from "@/lib/utils";
-import { deityIcon } from "@/lib/images";
+import { priceLabel } from "@/lib/utils";
+import { isRealImage } from "@/lib/images";
+import {
+  ActionButton,
+  Avatar,
+  Badge,
+  Card,
+  CardHeader,
+  PageHeader,
+} from "@/components/admin/ui";
+import { IconCheck, IconExternal, IconStar, IconUndo } from "@/components/admin/icons";
 
-export default async function AdminProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminProductDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   await requireAdmin();
   const { id } = await params;
   const product = await getProductAdmin(id);
@@ -24,121 +37,172 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
     { label: "City", value: product.city },
     { label: "Category", value: product.category?.name ?? null },
   ];
+  const filledSpecs = specs.filter((s) => s.value);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href="/admin/products" className="text-sm text-saffron-700 hover:underline">← Back to products</Link>
-          <h1 className="mt-2 text-2xl font-bold">Product Detail</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <form action={setProductFeatured}>
-            <input type="hidden" name="id" value={product.id} />
-            <input type="hidden" name="featured" value={(!product.is_featured).toString()} />
-            <button className="rounded-full px-3 py-1.5 text-sm font-semibold border border-clay-200 hover:bg-clay-50">
-              {product.is_featured ? "⭐ Featured" : "☆ Feature"}
-            </button>
-          </form>
-          <form action={setProductApproval}>
-            <input type="hidden" name="id" value={product.id} />
-            <input type="hidden" name="approve" value={(!product.is_approved).toString()} />
-            <button className={`rounded-full px-4 py-1.5 text-sm font-semibold text-white ${product.is_approved ? "bg-clay-700 hover:opacity-90" : "bg-green-600 hover:bg-green-700"}`}>
+      <PageHeader
+        title={product.name}
+        description={`/${product.slug}`}
+        backHref="/admin/products"
+        backLabel="Back to products"
+        actions={
+          <>
+            <ActionButton
+              action={setProductFeatured}
+              fields={{ id: product.id, featured: (!product.is_featured).toString() }}
+              variant="secondary"
+              size="md"
+              className={product.is_featured ? "text-saffron-700" : undefined}
+            >
+              <IconStar className="h-4 w-4" filled={product.is_featured} />
+              {product.is_featured ? "Featured" : "Feature"}
+            </ActionButton>
+            <ActionButton
+              action={setProductApproval}
+              fields={{ id: product.id, approve: (!product.is_approved).toString() }}
+              variant={product.is_approved ? "secondary" : "success"}
+              size="md"
+            >
+              {product.is_approved ? (
+                <IconUndo className="h-4 w-4" />
+              ) : (
+                <IconCheck className="h-4 w-4" />
+              )}
               {product.is_approved ? "Unapprove" : "Approve"}
-            </button>
-          </form>
-        </div>
-      </div>
+            </ActionButton>
+            {product.is_approved && (
+              <Link
+                href={`/products/${product.slug}`}
+                className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-clay-500 transition hover:bg-clay-100 hover:text-clay-900"
+              >
+                View public page
+              </Link>
+            )}
+          </>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-clay-100 bg-white p-4">
+        <Card className="p-4 lg:sticky lg:top-[76px] lg:h-fit">
           <ProductGallery images={product.images} name={product.name} />
-        </div>
+        </Card>
 
         <div className="space-y-5">
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold">{product.name}</h2>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${product.is_approved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+          <Card className="p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={product.is_approved ? "success" : "warning"} dot>
                 {product.is_approved ? "Live" : "Pending"}
-              </span>
-              {product.is_featured && <span className="rounded-full bg-saffron-100 px-2.5 py-0.5 text-xs font-medium text-saffron-700">Featured</span>}
+              </Badge>
+              {product.is_featured && <Badge tone="brand">Featured</Badge>}
+              <Badge tone={product.in_stock ? "info" : "neutral"}>
+                {product.in_stock ? "In stock · ready to ship" : "Made to order"}
+              </Badge>
             </div>
-            <p className="mt-1 text-sm text-clay-700">Slug: {product.slug}</p>
-          </div>
-
-          <div className="rounded-2xl border border-clay-100 bg-white p-4">
-            <p className="text-2xl font-semibold text-saffron-700">{priceLabel(product)}</p>
-            <p className="mt-1 text-sm text-clay-700">{product.in_stock ? "In stock · ready to ship" : "Made to order"}</p>
-          </div>
+            <p className="mt-4 text-[28px] font-semibold leading-none tracking-tight text-saffron-700 tabular">
+              {priceLabel(product)}
+            </p>
+          </Card>
 
           {product.description && (
-            <div className="rounded-2xl border border-clay-100 bg-white p-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Description</h3>
-              <p className="mt-2 text-clay-700 whitespace-pre-wrap">{product.description}</p>
-            </div>
+            <Card>
+              <CardHeader title="Description" />
+              <p className="whitespace-pre-wrap p-5 text-sm leading-relaxed text-clay-600">
+                {product.description}
+              </p>
+            </Card>
           )}
 
-          <div className="rounded-2xl border border-clay-100 bg-white p-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Specifications</h3>
-            <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3">
-              {specs.filter((s) => s.value).map((s) => (
-                <div key={s.label}>
-                  <dt className="text-xs text-clay-700/70">{s.label}</dt>
-                  <dd className="font-medium text-clay-900">{s.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          {filledSpecs.length > 0 && (
+            <Card>
+              <CardHeader title="Specifications" />
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5">
+                {filledSpecs.map((s) => (
+                  <div key={s.label} className="min-w-0">
+                    <dt className="text-xs text-clay-400">{s.label}</dt>
+                    <dd className="mt-0.5 truncate text-sm font-medium text-clay-900">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </Card>
+          )}
 
           {product.video_url && (
-            <a href={product.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-medium text-saffron-700 hover:underline">
-              ▶ Watch product video
+            <a
+              href={product.video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-700 hover:underline"
+            >
+              Watch product video
+              <IconExternal className="h-3.5 w-3.5" />
             </a>
           )}
         </div>
       </div>
 
       {product.shop && (
-        <div className="rounded-2xl border border-clay-100 bg-white p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Vendor</h3>
-          <Link href={`/admin/vendors`} className="mt-3 flex items-center gap-3 transition hover:opacity-80">
-            <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-clay-100 text-xl">
-              <Thumb src={product.shop.logo_url} alt={product.shop.name} seed={product.shop.slug} icon="🏪" width={48} height={48} className="object-cover" />
-            </span>
-            <div>
-              <p className="font-semibold">{product.shop.name}</p>
-              <p className="text-sm text-clay-700">{product.shop.city}, {product.shop.state}</p>
-              <p className="text-xs text-clay-700/70">{product.shop.email} · {product.shop.phone}</p>
+        <Card>
+          <CardHeader title="Vendor" />
+          <Link
+            href={`/admin/vendors/${product.shop_id}`}
+            className="flex items-center gap-3 p-5 transition hover:bg-clay-50/70"
+          >
+            {isRealImage(product.shop.logo_url) ? (
+              <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-clay-100 ring-1 ring-clay-200/70">
+                <Thumb
+                  src={product.shop.logo_url}
+                  alt={product.shop.name}
+                  seed={product.shop.slug}
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 object-cover"
+                />
+              </span>
+            ) : (
+              <Avatar name={product.shop.name} className="h-11 w-11 text-sm" />
+            )}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-clay-900">{product.shop.name}</p>
+              <p className="truncate text-sm text-clay-500">
+                {[product.shop.city, product.shop.state].filter(Boolean).join(", ") || "—"}
+              </p>
+              <p className="truncate text-xs text-clay-400">
+                {[product.shop.email, product.shop.phone].filter(Boolean).join(" · ") || "No contact"}
+              </p>
             </div>
-            <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-medium ${product.shop.is_approved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+            <Badge tone={product.shop.is_approved ? "success" : "warning"} className="ml-auto shrink-0">
               {product.shop.is_approved ? "Approved" : "Pending"}
-            </span>
+            </Badge>
           </Link>
-        </div>
+        </Card>
       )}
 
-      <div className="rounded-2xl border border-clay-100 bg-white p-5">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Metadata</h3>
-        <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 text-sm md:grid-cols-4">
-          <div>
-            <dt className="text-clay-700/70">Product ID</dt>
-            <dd className="font-mono text-xs text-clay-900">{product.id}</dd>
+      <Card>
+        <CardHeader title="Metadata" />
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 md:grid-cols-4">
+          <div className="min-w-0">
+            <dt className="text-xs text-clay-400">Product ID</dt>
+            <dd className="mt-0.5 break-all font-mono text-xs text-clay-700">{product.id}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-xs text-clay-400">Shop ID</dt>
+            <dd className="mt-0.5 break-all font-mono text-xs text-clay-700">{product.shop_id}</dd>
           </div>
           <div>
-            <dt className="text-clay-700/70">Images</dt>
-            <dd className="text-clay-900">{product.images.length} uploaded</dd>
+            <dt className="text-xs text-clay-400">Images</dt>
+            <dd className="mt-0.5 text-sm font-medium text-clay-900">
+              {product.images.length} uploaded
+            </dd>
           </div>
           <div>
-            <dt className="text-clay-700/70">Shop ID</dt>
-            <dd className="font-mono text-xs text-clay-900">{product.shop_id}</dd>
-          </div>
-          <div>
-            <dt className="text-clay-700/70">Video</dt>
-            <dd className="text-clay-900">{product.video_url ? "Yes" : "None"}</dd>
+            <dt className="text-xs text-clay-400">Video</dt>
+            <dd className="mt-0.5 text-sm font-medium text-clay-900">
+              {product.video_url ? "Yes" : "None"}
+            </dd>
           </div>
         </dl>
-      </div>
+      </Card>
     </div>
   );
 }

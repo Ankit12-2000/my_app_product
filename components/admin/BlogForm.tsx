@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { BlogPost } from "@/types";
+import { Button, Card, Field, inputClass } from "@/components/admin/ui";
+import { IconAlert } from "@/components/admin/icons";
 
 type BlogState = { error?: string };
 type BlogAction = (prev: BlogState, formData: FormData) => Promise<BlogState>;
@@ -10,13 +12,9 @@ type BlogAction = (prev: BlogState, formData: FormData) => Promise<BlogState>;
 function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-full bg-saffron-600 px-6 py-2.5 font-semibold text-white hover:bg-saffron-700 disabled:opacity-60"
-    >
+    <Button type="submit" variant="brand" size="md" disabled={pending}>
       {pending ? "Saving…" : label}
-    </button>
+    </Button>
   );
 }
 
@@ -34,42 +32,63 @@ export function BlogForm({
   const published = (post as { is_published?: boolean } | null | undefined)?.is_published ?? true;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       {post && <input type="hidden" name="id" value={post.id} />}
 
-      <div>
-        <label className="text-sm font-medium">Title *</label>
-        <input name="title" required defaultValue={post?.title}
-          className="mt-1 w-full rounded-lg border border-clay-100 px-3 py-2 outline-none focus:border-saffron-400" />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium">Author</label>
-          <input name="author" defaultValue={post?.author ?? ""}
-            className="mt-1 w-full rounded-lg border border-clay-100 px-3 py-2 outline-none focus:border-saffron-400" />
-        </div>
-        <div>
-          <label className="text-sm font-medium">Cover image URL</label>
-          <input name="cover_url" defaultValue={post?.cover_url ?? ""}
-            className="mt-1 w-full rounded-lg border border-clay-100 px-3 py-2 outline-none focus:border-saffron-400" />
-        </div>
-      </div>
-      <div>
-        <label className="text-sm font-medium">Excerpt</label>
-        <input name="excerpt" defaultValue={post?.excerpt ?? ""}
-          className="mt-1 w-full rounded-lg border border-clay-100 px-3 py-2 outline-none focus:border-saffron-400" />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Body</label>
-        <textarea name="body" rows={10} defaultValue={post?.body ?? ""}
-          className="mt-1 w-full rounded-lg border border-clay-100 px-3 py-2 outline-none focus:border-saffron-400" />
-      </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" name="is_published" defaultChecked={published} />
-        Published (visible on the public blog)
-      </label>
+      <Card className="space-y-4 p-5">
+        <Field label="Title" required>
+          <input name="title" required defaultValue={post?.title} className={inputClass} />
+        </Field>
 
-      {state.error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Author">
+            <input name="author" defaultValue={post?.author ?? ""} className={inputClass} />
+          </Field>
+          <Field label="Cover image URL">
+            <input
+              name="cover_url"
+              placeholder="https://…"
+              defaultValue={post?.cover_url ?? ""}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        <Field label="Excerpt" hint="A one-line summary shown in listings and search results.">
+          <input name="excerpt" defaultValue={post?.excerpt ?? ""} className={inputClass} />
+        </Field>
+      </Card>
+
+      <Card className="space-y-4 p-5">
+        <Field label="Body">
+          <textarea
+            name="body"
+            rows={16}
+            defaultValue={post?.body ?? ""}
+            className={`${inputClass} resize-y leading-relaxed`}
+          />
+        </Field>
+
+        <label className="flex items-start gap-2.5 rounded-lg border border-clay-200 bg-clay-50/60 px-3.5 py-3">
+          <input
+            type="checkbox"
+            name="is_published"
+            defaultChecked={published}
+            className="mt-0.5 h-4 w-4 accent-saffron-600"
+          />
+          <span>
+            <span className="block text-sm font-medium text-clay-900">Published</span>
+            <span className="block text-xs text-clay-500">Visible on the public blog.</span>
+          </span>
+        </label>
+      </Card>
+
+      {state.error && (
+        <p className="inline-flex items-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 ring-1 ring-inset ring-rose-200">
+          <IconAlert className="h-4 w-4" />
+          {state.error}
+        </p>
+      )}
 
       <Submit label={submitLabel} />
     </form>

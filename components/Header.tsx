@@ -1,15 +1,7 @@
 import Link from "next/link";
+import { MobileNav } from "./MobileNav";
+import { NavLinks } from "./NavLinks";
 import { SearchBar } from "./SearchBar";
-
-const nav = [
-  { href: "/", label: "Home" },
-  { href: "/search", label: "All Products" },
-  { href: "/categories", label: "Categories" },
-  { href: "/vendors", label: "Vendors" },
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
 
 export function Header() {
   return (
@@ -17,7 +9,7 @@ export function Header() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-saffron-600 text-lg text-white">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-saffron-500 to-saffron-700 text-lg text-white shadow-sm">
               ॐ
             </span>
             <span className="text-xl font-bold tracking-tight text-clay-900">
@@ -29,25 +21,14 @@ export function Header() {
             <SearchBar />
           </div>
 
-          <div className="flex items-center gap-3 text-sm">
-          </div>
+          <MobileNav />
         </div>
 
         <div className="md:hidden">
           <SearchBar />
         </div>
 
-        <nav className="flex items-center gap-1 overflow-x-auto text-sm">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap rounded-full px-3 py-1.5 font-medium text-clay-700 transition hover:bg-saffron-50 hover:text-saffron-700"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks />
       </div>
     </header>
   );

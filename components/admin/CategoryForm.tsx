@@ -6,6 +6,8 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { createCategory, type CategoryState } from "@/app/actions/admin";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { Button, Field, inputClass } from "@/components/admin/ui";
+import { IconImage, IconPlus } from "@/components/admin/icons";
 
 const BUCKET = "product-images";
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -13,9 +15,10 @@ const MAX_BYTES = 5 * 1024 * 1024;
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="rounded-full bg-saffron-600 px-4 py-2 text-sm font-semibold text-white hover:bg-saffron-700 disabled:opacity-60">
+    <Button type="submit" variant="brand" size="md" disabled={pending} className="w-full justify-center">
+      <IconPlus className="h-4 w-4" />
       {pending ? "Adding…" : "Add category"}
-    </button>
+    </Button>
   );
 }
 
@@ -61,37 +64,51 @@ export function CategoryForm() {
   }
 
   return (
-    <form action={formAction} className="mt-4 space-y-2 border-t border-clay-100 pt-4">
-      <input name="name" placeholder="Category name *" required
-        className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400" />
-      <input name="description" placeholder="Description"
-        className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400" />
+    <form action={formAction} className="space-y-4">
+      <p className="text-xs font-semibold text-clay-600">Add a category</p>
+
+      <Field label="Name" required>
+        <input name="name" placeholder="e.g. Ganesha Moortis" required className={inputClass} />
+      </Field>
+      <Field label="Description">
+        <input name="description" placeholder="Shown on the category page" className={inputClass} />
+      </Field>
 
       <input type="hidden" name="image_url" value={imageUrl} />
 
-      <div className="flex items-center gap-3">
-        <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-clay-100 bg-clay-100">
-          {imageUrl ? (
-            <Image src={imageUrl} alt="" fill sizes="64px" className="object-cover" />
-          ) : (
-            <div className="grid h-full w-full place-items-center text-xl text-clay-700/50">🖼️</div>
-          )}
+      <Field label="Cover image" hint="Max 5 MB. JPG, PNG or WebP.">
+        <div className="flex items-center gap-3">
+          <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-clay-200 bg-clay-100">
+            {imageUrl ? (
+              <Image src={imageUrl} alt="" fill sizes="64px" className="object-cover" />
+            ) : (
+              <IconImage className="h-5 w-5 text-clay-400" />
+            )}
+          </div>
+          <div className="flex flex-col items-start gap-1">
+            <Button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={busy}
+              variant="secondary"
+            >
+              {busy ? "Uploading…" : imageUrl ? "Change image" : "Upload image"}
+            </Button>
+            {imageUrl && !busy && (
+              <button
+                type="button"
+                onClick={() => setImageUrl("")}
+                className="px-1 text-xs font-medium text-rose-600 hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}
-            className="rounded-full border border-clay-100 px-3 py-1.5 text-xs font-medium text-clay-700 hover:bg-clay-50 disabled:opacity-60">
-            {busy ? "Uploading…" : imageUrl ? "Change image" : "Upload image"}
-          </button>
-          {imageUrl && !busy && (
-            <button type="button" onClick={() => setImageUrl("")} className="text-xs font-medium text-red-600 hover:underline">
-              Remove
-            </button>
-          )}
-        </div>
-      </div>
+      </Field>
+
       <input ref={inputRef} type="file" accept="image/*" onChange={onFileSelect} className="hidden" />
-      <p className="text-xs text-clay-700/70">Max 5 MB. JPG/PNG/WebP.</p>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs font-medium text-rose-600">{error}</p>}
 
       <SubmitButton />
     </form>

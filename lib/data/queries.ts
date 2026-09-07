@@ -79,6 +79,27 @@ export async function getCategories(): Promise<Category[]> {
   return (data as Category[]) ?? [];
 }
 
+// Categories that actually have at least one approved product. Used by the
+// public category grids so we never link visitors into an empty listing;
+// admin/vendor forms keep using getCategories() so every category stays pickable.
+export async function getCategoriesWithProducts(): Promise<Category[]> {
+  if (!isSupabaseConfigured) {
+    const used = new Set(
+      mock.products.filter((p) => p.is_approved).map((p) => p.category_id)
+    );
+    return mock.categories.filter((c) => used.has(c.id));
+  }
+  const sb = await createSupabaseServerClient();
+  const [categories, products] = await Promise.all([
+    sb.from("categories").select("*").order("name"),
+    sb.from("products").select("category_id").eq("is_approved", true).not("category_id", "is", null),
+  ]);
+  const used = new Set(
+    ((products.data as { category_id: string | null }[]) ?? []).map((p) => p.category_id)
+  );
+  return ((categories.data as Category[]) ?? []).filter((c) => used.has(c.id));
+}
+
 export async function getMaterials(): Promise<Material[]> {
   if (!isSupabaseConfigured) return mock.materials;
   const sb = await createSupabaseServerClient();
@@ -120,24 +141,187 @@ export async function getFeaturedProducts(): Promise<Product[]> {
   return (data as Product[]) ?? [];
 }
 
+/**
+ * The murti shelf that opens the home page. Featured listings lead; when there
+ * are not enough of them the shelf is topped up with the newest approved
+ * products, so the page never opens on a half-empty grid.
+ */
+export async function getHomeProducts(limit = 12): Promise<Product[]> {
+  if (!isSupabaseConfigured) {
+    const all = mock.products.filter((p) => p.is_approved).map(hydrate);
+    return [...all.filter((p) => p.is_featured), ...all.filter((p) => !p.is_featured)].slice(
+      0,
+      limit
+    );
+  }
+
+  const featured = await getFeaturedProducts();
+  if (featured.length >= limit) return featured.slice(0, limit);
+
+  const sb = await createSupabaseServerClient();
+  const { data } = await sb
+    .from("products")
+    .select("*, images:product_images(*), shop:shops(*), category:categories(*), material:materials(*)")
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  const seen = new Set(featured.map((p) => p.id));
+  const rest = ((data as Product[]) ?? []).filter((p) => !seen.has(p.id));
+  return [...featured, ...rest].slice(0, limit);
+}
+
+export interface CategoryShelf {
+  category: Category;
+  products: Product[];
+}
+
+/**
+ * Category-by-category shelves for the home page browse rail. Each shelf holds
+ * only as many products as a single row shows, and any category too thin to
+ * fill a row is dropped so the page never renders a heading over one lonely
+ * card.
+ */
+export async function getCategoryShelves(perCategory = 6, minProducts = 2): Promise<CategoryShelf[]> {
+  const categories = await getCategoriesWithProducts();
+
+  if (!isSupabaseConfigured) {
+    return categories
+      .map((category) => ({
+        category,
+        products: mock.products
+          .filter((p) => p.is_approved && p.category_id === category.id)
+          .map(hydrate)
+          .slice(0, perCategory),
+      }))
+      .filter((shelf) => shelf.products.length >= minProducts);
+  }
+
+  const sb = await createSupabaseServerClient();
+  const shelves = await Promise.all(
+    categories.map(async (category) => {
+      const { data } = await sb
+        .from("products")
+        .select("*, images:product_images(*), shop:shops(*), category:categories(*), material:materials(*)")
+        .eq("is_approved", true)
+        .eq("category_id", category.id)
+        .order("created_at", { ascending: false })
+        .limit(perCategory);
+      return { category, products: (data as Product[]) ?? [] };
+    })
+  );
+  return shelves.filter((shelf) => shelf.products.length >= minProducts);
+}
+
+export const PRODUCTS_PER_PAGE = 24;
+
+export interface PagedProducts {
+  products: Product[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}
+
 export async function searchProducts(filters: ProductSearchFilters): Promise<Product[]> {
   if (!isSupabaseConfigured) return applyFilters(mock.products.map(hydrate), filters);
 
   const sb = await createSupabaseServerClient();
-  let query = sb
-    .from("products")
-    .select("*, images:product_images(*), shop:shops(*), category:categories(*), material:materials(*)")
-    .eq("is_approved", true);
+  const { data } = await buildProductSearch(sb, filters);
+  return (data as Product[]) ?? [];
+}
 
+// Paginated catalog read. Returns the requested slice plus the total match
+// count so the UI can render page numbers without fetching everything.
+export async function searchProductsPage(
+  filters: ProductSearchFilters,
+  page = 1,
+  perPage = PRODUCTS_PER_PAGE
+): Promise<PagedProducts> {
+  const safePerPage = Math.max(1, perPage);
+
+  if (!isSupabaseConfigured) {
+    const all = applyFilters(mock.products.map(hydrate), filters);
+    return paginate(all, all.length, page, safePerPage, (list, from, to) => list.slice(from, to + 1));
+  }
+
+  const sb = await createSupabaseServerClient();
+  const total = await countProducts(sb, filters);
+  const totalPages = Math.max(1, Math.ceil(total / safePerPage));
+  const current = Math.min(Math.max(1, Math.floor(page) || 1), totalPages);
+  const from = (current - 1) * safePerPage;
+
+  const { data } = await buildProductSearch(sb, filters).range(from, from + safePerPage - 1);
+
+  return {
+    products: (data as Product[]) ?? [],
+    total,
+    page: current,
+    perPage: safePerPage,
+    totalPages,
+  };
+}
+
+function paginate(
+  list: Product[],
+  total: number,
+  page: number,
+  perPage: number,
+  slice: (list: Product[], from: number, to: number) => Product[]
+): PagedProducts {
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const current = Math.min(Math.max(1, Math.floor(page) || 1), totalPages);
+  const from = (current - 1) * perPage;
+  return {
+    products: slice(list, from, from + perPage - 1),
+    total,
+    page: current,
+    perPage,
+    totalPages,
+  };
+}
+
+// Shared filter/sort builder so the count query and the page query stay in sync.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyProductFilters(query: any, filters: ProductSearchFilters) {
   if (filters.city) query = query.ilike("city", filters.city);
   if (filters.deity) query = query.ilike("deity", `%${filters.deity}%`);
   if (filters.finish) query = query.ilike("finish", `%${filters.finish}%`);
   if (filters.priceMax != null) query = query.lte("price_min", filters.priceMax);
   if (filters.priceMin != null) query = query.gte("price_max", filters.priceMin);
   if (filters.q) query = query.ilike("name", `%${filters.q}%`);
+  if (filters.category) query = query.eq("category.slug", filters.category);
+  if (filters.material) query = query.eq("material.slug", filters.material);
 
-  const { data } = await query;
-  return (data as Product[]) ?? [];
+  if (filters.sort === "price_asc") query = query.order("price_min", { ascending: true, nullsFirst: false });
+  else if (filters.sort === "price_desc") query = query.order("price_min", { ascending: false, nullsFirst: false });
+  else query = query.order("created_at", { ascending: false });
+
+  return query;
+}
+
+// Inner joins on category/material only when those filters are active, so an
+// unfiltered search still returns products with no category or material set.
+function selectClause(filters: ProductSearchFilters) {
+  const category = filters.category ? "category:categories!inner(*)" : "category:categories(*)";
+  const material = filters.material ? "material:materials!inner(*)" : "material:materials(*)";
+  return `*, images:product_images(*), shop:shops(*), ${category}, ${material}`;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildProductSearch(sb: any, filters: ProductSearchFilters) {
+  const query = sb.from("products").select(selectClause(filters)).eq("is_approved", true);
+  return applyProductFilters(query, filters);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function countProducts(sb: any, filters: ProductSearchFilters): Promise<number> {
+  const query = sb
+    .from("products")
+    .select(selectClause(filters), { count: "exact", head: true })
+    .eq("is_approved", true);
+  const { count } = await applyProductFilters(query, filters);
+  return count ?? 0;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

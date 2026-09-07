@@ -54,9 +54,17 @@ export default async function VendorLayout({ children }: { children: React.React
               <VendorSidebar shopName={shop.name} />
             ) : (
               <div className="rounded-2xl border-2 border-dashed border-clay-200 bg-white p-6 text-center">
-                <p className="text-3xl">🏪</p>
-                <p className="mt-2 text-sm font-medium text-clay-700">Finish setting up your shop</p>
-                <p className="mt-1 text-xs text-clay-500">Complete your profile to unlock the dashboard.</p>
+                <p className="text-3xl" aria-hidden>🏪</p>
+                <p className="mt-2 text-sm font-bold text-clay-800">Finish setting up your shop</p>
+                <p className="mt-1 text-xs leading-relaxed text-clay-500">
+                  Complete your profile to unlock products, enquiries and the dashboard.
+                </p>
+                <Link
+                  href="/vendor/onboarding"
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-saffron-500 to-saffron-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-saffron-200 transition hover:shadow-lg"
+                >
+                  Continue setup
+                </Link>
               </div>
             )}
           </aside>

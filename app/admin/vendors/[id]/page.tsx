@@ -6,160 +6,230 @@ import { setShopApproval, setShopFeatured } from "@/app/actions/admin";
 import { Thumb } from "@/components/Thumb";
 import { StarRating } from "@/components/StarRating";
 import { priceLabel, primaryImage } from "@/lib/utils";
-import { deityIcon } from "@/lib/images";
+import { deityIcon, isRealImage } from "@/lib/images";
+import {
+  ActionButton,
+  Avatar,
+  Badge,
+  Card,
+  CardHeader,
+  PageHeader,
+} from "@/components/admin/ui";
+import { IconBox, IconCheck, IconStar, IconUndo } from "@/components/admin/icons";
 
-export default async function AdminVendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+function DefItem({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-clay-400">{label}</dt>
+      <dd className="mt-0.5 truncate text-sm font-medium text-clay-900">{children}</dd>
+    </div>
+  );
+}
+
+export default async function AdminVendorDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   await requireAdmin();
   const { id } = await params;
   const result = await getShopAdmin(id);
   if (!result) notFound();
   const { shop, products, reviews } = result;
 
+  const liveProducts = products.filter((p) => p.is_approved).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <Link href="/admin/vendors" className="text-sm text-saffron-700 hover:underline">← Back to vendors</Link>
-          <h1 className="mt-2 text-2xl font-bold">Vendor Detail</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <form action={setShopFeatured}>
-            <input type="hidden" name="id" value={shop.id} />
-            <input type="hidden" name="featured" value={(!shop.is_featured).toString()} />
-            <button className="rounded-full px-3 py-1.5 text-sm font-semibold border border-clay-200 hover:bg-clay-50">
-              {shop.is_featured ? "⭐ Featured" : "☆ Feature"}
-            </button>
-          </form>
-          <form action={setShopApproval}>
-            <input type="hidden" name="id" value={shop.id} />
-            <input type="hidden" name="approve" value={(!shop.is_approved).toString()} />
-            <button className={`rounded-full px-4 py-1.5 text-sm font-semibold text-white ${shop.is_approved ? "bg-clay-700 hover:opacity-90" : "bg-green-600 hover:bg-green-700"}`}>
+      <PageHeader
+        title={shop.name}
+        description={shop.tagline ?? undefined}
+        backHref="/admin/vendors"
+        backLabel="Back to vendors"
+        actions={
+          <>
+            <ActionButton
+              action={setShopFeatured}
+              fields={{ id: shop.id, featured: (!shop.is_featured).toString() }}
+              variant="secondary"
+              size="md"
+              className={shop.is_featured ? "text-saffron-700" : undefined}
+            >
+              <IconStar className="h-4 w-4" filled={shop.is_featured} />
+              {shop.is_featured ? "Featured" : "Feature"}
+            </ActionButton>
+            <ActionButton
+              action={setShopApproval}
+              fields={{ id: shop.id, approve: (!shop.is_approved).toString() }}
+              variant={shop.is_approved ? "secondary" : "success"}
+              size="md"
+            >
+              {shop.is_approved ? <IconUndo className="h-4 w-4" /> : <IconCheck className="h-4 w-4" />}
               {shop.is_approved ? "Unapprove" : "Approve"}
-            </button>
-          </form>
-        </div>
-      </div>
+            </ActionButton>
+            {shop.is_approved && (
+              <Link
+                href={`/shop/${shop.slug}`}
+                className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-semibold text-clay-500 transition hover:bg-clay-100 hover:text-clay-900"
+              >
+                View public page
+              </Link>
+            )}
+          </>
+        }
+      />
 
       {shop.banner_url && (
-        <div className="relative h-48 overflow-hidden rounded-2xl border border-clay-100 bg-clay-100">
-          <Thumb src={shop.banner_url} alt={`${shop.name} banner`} seed={shop.slug} fill sizes="100vw" className="object-cover" />
+        <div className="relative h-44 overflow-hidden rounded-xl border border-clay-200/70 bg-clay-100">
+          <Thumb
+            src={shop.banner_url}
+            alt={`${shop.name} banner`}
+            seed={shop.slug}
+            icon={null}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
         </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-5">
-          <div className="rounded-2xl border border-clay-100 bg-white p-5">
+        <div className="space-y-5 lg:col-span-2">
+          <Card className="p-5">
             <div className="flex items-start gap-4">
-              <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-clay-100 text-2xl">
-                <Thumb src={shop.logo_url} alt={shop.name} seed={shop.slug} icon="🏪" width={64} height={64} className="object-cover" />
-              </span>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-2xl font-bold">{shop.name}</h2>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${shop.is_approved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+              {isRealImage(shop.logo_url) ? (
+                <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-clay-100 ring-1 ring-clay-200/70">
+                  <Thumb
+                    src={shop.logo_url}
+                    alt={shop.name}
+                    seed={shop.slug}
+                    width={56}
+                    height={56}
+                    className="h-14 w-14 object-cover"
+                  />
+                </span>
+              ) : (
+                <Avatar name={shop.name} className="h-14 w-14 text-base" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-semibold text-clay-900">{shop.name}</h2>
+                  <Badge tone={shop.is_approved ? "success" : "warning"} dot>
                     {shop.is_approved ? "Approved" : "Pending"}
-                  </span>
-                  {shop.is_featured && <span className="rounded-full bg-saffron-100 px-2.5 py-0.5 text-xs font-medium text-saffron-700">Featured</span>}
+                  </Badge>
+                  {shop.is_featured && <Badge tone="brand">Featured</Badge>}
                 </div>
-                {shop.tagline && <p className="mt-1 text-clay-700">{shop.tagline}</p>}
-                <p className="mt-1 text-xs text-clay-700/70">Slug: {shop.slug}</p>
+                <p className="mt-1 font-mono text-xs text-clay-400">/{shop.slug}</p>
               </div>
             </div>
-            {shop.description && <p className="mt-4 text-clay-700 whitespace-pre-wrap">{shop.description}</p>}
-          </div>
+            {shop.description && (
+              <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-clay-600">
+                {shop.description}
+              </p>
+            )}
+          </Card>
 
-          <div className="rounded-2xl border border-clay-100 bg-white p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Contact Information</h3>
-            <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 text-sm md:grid-cols-3">
+          <Card>
+            <CardHeader title="Contact information" />
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 p-5 md:grid-cols-3">
+              <DefItem label="City">{shop.city || "—"}</DefItem>
+              <DefItem label="State">{shop.state || "—"}</DefItem>
+              <DefItem label="Phone">{shop.phone || "—"}</DefItem>
+              <DefItem label="Email">{shop.email || "—"}</DefItem>
+              <DefItem label="WhatsApp">{shop.whatsapp || "—"}</DefItem>
               <div>
-                <dt className="text-clay-700/70">City</dt>
-                <dd className="font-medium text-clay-900">{shop.city || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-clay-700/70">State</dt>
-                <dd className="font-medium text-clay-900">{shop.state || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-clay-700/70">Phone</dt>
-                <dd className="font-medium text-clay-900">{shop.phone || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-clay-700/70">Email</dt>
-                <dd className="font-medium text-clay-900">{shop.email || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-clay-700/70">WhatsApp</dt>
-                <dd className="font-medium text-clay-900">{shop.whatsapp || "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-clay-700/70">Rating</dt>
-                <dd className="flex items-center gap-2">
+                <dt className="text-xs text-clay-400">Rating</dt>
+                <dd className="mt-0.5 flex items-center gap-2">
                   <StarRating rating={shop.rating} />
-                  <span className="text-clay-700">({shop.review_count})</span>
+                  <span className="text-sm text-clay-500 tabular">({shop.review_count})</span>
                 </dd>
               </div>
             </dl>
-          </div>
+          </Card>
 
-          <div className="rounded-2xl border border-clay-100 bg-white p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Products ({products.length})</h3>
+          <Card>
+            <CardHeader
+              title="Products"
+              description={`${products.length} total · ${liveProducts} live`}
+            />
             {products.length === 0 ? (
-              <p className="mt-3 text-sm text-clay-700">No products yet.</p>
+              <p className="flex items-center justify-center gap-2 px-5 py-10 text-sm text-clay-500">
+                <IconBox className="h-4 w-4 text-clay-300" />
+                No products listed yet.
+              </p>
             ) : (
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 p-5 sm:grid-cols-2">
                 {products.map((p) => (
-                  <Link key={p.id} href={`/admin/products/${p.id}`} className="flex items-center gap-3 rounded-xl border border-clay-100 p-3 transition hover:shadow">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-clay-100">
-                      <Thumb src={primaryImage(p)} alt={p.name} seed={p.slug} icon={deityIcon(p.deity)} fill sizes="48px" className="object-cover" />
+                  <Link
+                    key={p.id}
+                    href={`/admin/products/${p.id}`}
+                    className="flex items-center gap-3 rounded-xl border border-clay-200/70 p-3 transition hover:border-clay-300 hover:bg-clay-50/70"
+                  >
+                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-clay-100">
+                      <Thumb
+                        src={primaryImage(p)}
+                        alt={p.name}
+                        seed={p.slug}
+                        icon={deityIcon(p.deity)}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                      />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-clay-900">{p.name}</p>
-                      <p className="text-xs text-saffron-700">{priceLabel(p)}</p>
+                      <p className="truncate text-xs text-saffron-700">{priceLabel(p)}</p>
                     </div>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${p.is_approved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                    <Badge tone={p.is_approved ? "success" : "warning"}>
                       {p.is_approved ? "Live" : "Pending"}
-                    </span>
+                    </Badge>
                   </Link>
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-2xl border border-clay-100 bg-white p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Reviews ({reviews.length})</h3>
+          <Card>
+            <CardHeader title="Reviews" description={`${reviews.length} total`} />
             {reviews.length === 0 ? (
-              <p className="mt-3 text-sm text-clay-700">No reviews yet.</p>
+              <p className="px-5 py-8 text-center text-sm text-clay-500">No reviews yet.</p>
             ) : (
-              <div className="mt-3 space-y-4">
+              <ul className="divide-y divide-clay-100">
                 {reviews.map((r) => (
-                  <div key={r.id} className="border-b border-clay-100 pb-3 last:border-0 last:pb-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-clay-900">{r.author_name}</span>
+                  <li key={r.id} className="px-5 py-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-sm font-medium text-clay-900">
+                        {r.author_name}
+                      </span>
                       <StarRating rating={r.rating} />
                     </div>
-                    {r.comment && <p className="mt-1 text-sm text-clay-700">{r.comment}</p>}
-                    <p className="mt-1 text-xs text-clay-700/50">{new Date(r.created_at).toLocaleDateString("en-IN")}</p>
-                  </div>
+                    {r.comment && (
+                      <p className="mt-1.5 text-sm leading-relaxed text-clay-600">{r.comment}</p>
+                    )}
+                    <p className="mt-1.5 text-xs text-clay-400">
+                      {new Date(r.created_at).toLocaleDateString("en-IN")}
+                    </p>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-          </div>
+          </Card>
 
-          <div className="rounded-2xl border border-clay-100 bg-white p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-clay-700/70">Metadata</h3>
-            <dl className="mt-3 space-y-2 text-sm">
+          <Card>
+            <CardHeader title="Metadata" />
+            <dl className="space-y-3 p-5">
               <div>
-                <dt className="text-clay-700/70">Shop ID</dt>
-                <dd className="font-mono text-xs text-clay-900">{shop.id}</dd>
+                <dt className="text-xs text-clay-400">Shop ID</dt>
+                <dd className="mt-0.5 break-all font-mono text-xs text-clay-700">{shop.id}</dd>
               </div>
               <div>
-                <dt className="text-clay-700/70">Vendor ID</dt>
-                <dd className="font-mono text-xs text-clay-900">{shop.vendor_id}</dd>
+                <dt className="text-xs text-clay-400">Vendor ID</dt>
+                <dd className="mt-0.5 break-all font-mono text-xs text-clay-700">{shop.vendor_id}</dd>
               </div>
             </dl>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

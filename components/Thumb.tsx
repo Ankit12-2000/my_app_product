@@ -52,7 +52,7 @@ export function Thumb({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center bg-gradient-to-br text-white",
+        "flex flex-col items-center justify-center bg-gradient-to-br text-clay-500",
         tileGradient(seed),
         fill ? "absolute inset-0 h-full w-full" : "h-full w-full",
         className
@@ -61,9 +61,9 @@ export function Thumb({
       aria-label={alt}
       role="img"
     >
-      {icon && <span className="text-4xl drop-shadow-sm sm:text-5xl">{icon}</span>}
+      {icon && <span className="text-3xl opacity-70 sm:text-4xl">{icon}</span>}
       {caption && (
-        <span className="clamp-2 mt-1 max-w-[90%] px-2 text-center text-xs font-medium text-white/90">
+        <span className="clamp-2 mt-1.5 max-w-[90%] px-2 text-center text-[11px] font-medium uppercase tracking-wide text-clay-500/80">
           {caption}
         </span>
       )}

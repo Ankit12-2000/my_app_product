@@ -36,7 +36,7 @@ export default async function ShopProfilePage() {
       )}
 
       {/* Form card */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-100 sm:p-8">
+      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-clay-100 sm:p-8">
         <ShopForm action={updateShop} shop={shop} submitLabel="Save changes" showImages />
       </div>
     </div>

@@ -213,13 +213,19 @@ export async function setVendorLeadStatus(formData: FormData) {
   const sb = await createSupabaseServerClient();
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "pending");
-  await sb.from("vendor_leads").update({ status }).eq("id", id);
+  const { error } = await sb.from("vendor_leads").update({ status }).eq("id", id);
+  // Without this the write fails silently under RLS and the row just never moves.
+  if (error) throw new Error(`vendor_leads status update failed: ${error.message}`);
   revalidatePath("/admin/vendor-leads");
 }
 
 export async function deleteVendorLead(formData: FormData) {
   await requireAdmin();
   const sb = await createSupabaseServerClient();
-  await sb.from("vendor_leads").delete().eq("id", String(formData.get("id") ?? ""));
+  const { error } = await sb
+    .from("vendor_leads")
+    .delete()
+    .eq("id", String(formData.get("id") ?? ""));
+  if (error) throw new Error(`vendor_leads delete failed: ${error.message}`);
   revalidatePath("/admin/vendor-leads");
 }
