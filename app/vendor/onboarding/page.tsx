@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
     <div className="mx-auto max-w-2xl">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-saffron-500 to-saffron-600 text-xl shadow-md shadow-saffron-200">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-saffron-600 text-xl shadow-md">
           🏪
         </span>
         <div className="min-w-0">

@@ -15,20 +15,34 @@ export function SearchBar({ initial = "" }: { initial?: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex w-full max-w-2xl">
+    <form onSubmit={submit} role="search" className="flex w-full max-w-2xl">
       <input
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search Ganesh, marble murti, Buddha, city…"
-        className="w-full rounded-l-full border border-clay-100 bg-white px-5 py-3 text-clay-900 outline-none focus:border-saffron-400"
+        className="h-12 w-full min-w-0 rounded-l-full border border-clay-100 bg-white px-4 text-clay-900 outline-none transition focus:border-saffron-400 sm:px-5"
         aria-label="Search products"
       />
+      {/* Icon-only below sm — the word "Search" ate a third of a phone's width. */}
       <button
         type="submit"
-        className="rounded-r-full bg-saffron-600 px-6 py-3 font-medium text-white transition hover:bg-saffron-700"
+        aria-label="Search"
+        className="flex h-12 shrink-0 items-center justify-center rounded-r-full bg-saffron-600 px-4 font-medium text-white transition hover:bg-saffron-700 sm:px-6"
       >
-        Search
+        <svg
+          aria-hidden
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          className="h-5 w-5 sm:hidden"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <span className="hidden sm:inline">Search</span>
       </button>
     </form>
   );

@@ -1,6 +1,8 @@
 import "server-only";
+import { cache } from "react";
 import type { InquiryStatus, Product } from "@/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { type Page, pageRange, searchTerm, toPage } from "@/lib/data/paging";
 
 // Vendor-scoped reads. All run as the authenticated vendor, so RLS guarantees
 // they only ever see their own shop's data.
@@ -28,7 +30,8 @@ export interface VendorStats {
   quotations: number;
 }
 
-export async function getVendorStats(shopId: string): Promise<VendorStats> {
+// cache()d so the layout badges and the dashboard body share one round of counts.
+export const getVendorStats = cache(async (shopId: string): Promise<VendorStats> => {
   const sb = await createSupabaseServerClient();
   const [products, inqAll, inqNew, inqOpen, quotes] = await Promise.all([
     sb.from("products").select("id", { count: "exact", head: true }).eq("shop_id", shopId),
@@ -45,21 +48,60 @@ export async function getVendorStats(shopId: string): Promise<VendorStats> {
     inquiriesOpen: inqOpen.count ?? 0,
     quotations: quotes.count ?? 0,
   };
-}
+});
 
-export async function listInquiries(
-  shopId: string,
-  status?: InquiryStatus
-): Promise<VendorInquiry[]> {
+/** The handful of newest inquiries the dashboard shows. */
+export async function listRecentInquiries(shopId: string, limit = 6): Promise<VendorInquiry[]> {
   const sb = await createSupabaseServerClient();
-  let q = sb
+  const { data } = await sb
     .from("inquiries")
     .select("*, product:products(name, slug)")
     .eq("shop_id", shopId)
-    .order("created_at", { ascending: false });
-  if (status) q = q.eq("status", status);
-  const { data } = await q;
+    .order("created_at", { ascending: false })
+    .limit(limit);
   return (data as VendorInquiry[]) ?? [];
+}
+
+export interface VendorInquiryQuery {
+  shopId: string;
+  page?: number;
+  q?: string;
+  status?: InquiryStatus;
+}
+
+export async function listInquiriesPage({
+  shopId,
+  page = 1,
+  q,
+  status,
+}: VendorInquiryQuery): Promise<Page<VendorInquiry>> {
+  const sb = await createSupabaseServerClient();
+  const [from, to] = pageRange(page);
+
+  let query = sb
+    .from("inquiries")
+    .select("*, product:products(name, slug)", { count: "exact" })
+    .eq("shop_id", shopId);
+  if (status) query = query.eq("status", status);
+
+  const term = searchTerm(q);
+  if (term) {
+    query = query.or(`name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%,city.ilike.%${term}%`);
+  }
+
+  const { data, count } = await query.order("created_at", { ascending: false }).range(from, to);
+  return toPage(data as VendorInquiry[] | null, count, page);
+}
+
+/** Per-status totals for the inquiry filter tabs. */
+export async function vendorInquiryStatusCounts(shopId: string): Promise<Record<string, number>> {
+  const sb = await createSupabaseServerClient();
+  const { data } = await sb.from("inquiries").select("status").eq("shop_id", shopId).limit(5000);
+  const counts: Record<string, number> = {};
+  for (const row of (data as { status: string }[]) ?? []) {
+    counts[row.status] = (counts[row.status] ?? 0) + 1;
+  }
+  return counts;
 }
 
 export interface InquiryMessage {
@@ -93,14 +135,43 @@ export async function getInquiry(
   return { inquiry: inquiry as VendorInquiry, messages: (messages as InquiryMessage[]) ?? [] };
 }
 
-export async function listVendorProducts(shopId: string): Promise<Product[]> {
+export type VendorProductStatus = "all" | "live" | "pending";
+
+export interface VendorProductQuery {
+  shopId: string;
+  page?: number;
+  q?: string;
+  status?: VendorProductStatus;
+}
+
+// Only the columns the product grid paints — the old query pulled every image
+// row plus the full category and material records for each card.
+const VENDOR_PRODUCT_SELECT =
+  "id, slug, name, deity, price_min, price_max, is_approved, is_featured, in_stock, created_at, images:product_images(url, sort_order)";
+
+export async function listVendorProductsPage({
+  shopId,
+  page = 1,
+  q,
+  status = "all",
+}: VendorProductQuery): Promise<Page<Product>> {
   const sb = await createSupabaseServerClient();
-  const { data } = await sb
+  const [from, to] = pageRange(page);
+
+  let query = sb
     .from("products")
-    .select("*, images:product_images(*), category:categories(*), material:materials(*)")
-    .eq("shop_id", shopId)
-    .order("created_at", { ascending: false });
-  return (data as Product[]) ?? [];
+    .select(VENDOR_PRODUCT_SELECT, { count: "exact" })
+    .eq("shop_id", shopId);
+  if (status === "live") query = query.eq("is_approved", true);
+  if (status === "pending") query = query.eq("is_approved", false);
+
+  const term = searchTerm(q);
+  if (term) {
+    query = query.or(`name.ilike.%${term}%,deity.ilike.%${term}%,slug.ilike.%${term}%`);
+  }
+
+  const { data, count } = await query.order("created_at", { ascending: false }).range(from, to);
+  return toPage(data as unknown as Product[] | null, count, page);
 }
 
 export async function getVendorProduct(shopId: string, id: string): Promise<Product | null> {
@@ -142,14 +213,48 @@ export interface QuotationItem {
   sort_order: number;
 }
 
-export async function listQuotations(shopId: string): Promise<QuotationRow[]> {
+export interface QuotationQuery {
+  shopId: string;
+  page?: number;
+  q?: string;
+  status?: string;
+}
+
+export async function listQuotationsPage({
+  shopId,
+  page = 1,
+  q,
+  status,
+}: QuotationQuery): Promise<Page<QuotationRow>> {
   const sb = await createSupabaseServerClient();
-  const { data } = await sb
+  const [from, to] = pageRange(page);
+
+  let query = sb
     .from("quotations")
-    .select("*, items:quotation_items(*)")
-    .eq("shop_id", shopId)
-    .order("created_at", { ascending: false });
-  return (data as QuotationRow[]) ?? [];
+    .select("*, items:quotation_items(*)", { count: "exact" })
+    .eq("shop_id", shopId);
+  if (status && status !== "all") query = query.eq("status", status);
+
+  const term = searchTerm(q);
+  if (term) {
+    query = query.or(
+      `number.ilike.%${term}%,customer_name.ilike.%${term}%,customer_phone.ilike.%${term}%,customer_city.ilike.%${term}%`
+    );
+  }
+
+  const { data, count } = await query.order("created_at", { ascending: false }).range(from, to);
+  return toPage(data as QuotationRow[] | null, count, page);
+}
+
+/** Per-status totals for the quotation filter tabs. */
+export async function quotationStatusCounts(shopId: string): Promise<Record<string, number>> {
+  const sb = await createSupabaseServerClient();
+  const { data } = await sb.from("quotations").select("status").eq("shop_id", shopId).limit(5000);
+  const counts: Record<string, number> = {};
+  for (const row of (data as { status: string }[]) ?? []) {
+    counts[row.status] = (counts[row.status] ?? 0) + 1;
+  }
+  return counts;
 }
 
 export async function getQuotation(shopId: string, id: string): Promise<QuotationRow | null> {

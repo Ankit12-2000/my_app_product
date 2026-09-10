@@ -2,6 +2,26 @@
 
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isServiceRoleConfigured } from "@/lib/supabase/config";
+
+/**
+ * Drop the one-time password the admin was shown for this vendor. Once they
+ * have signed in they know it, so there is no reason to keep it readable in the
+ * database. Best-effort by design: a failure here must never block a login.
+ */
+async function clearVendorTempPassword(userId: string) {
+  if (!isServiceRoleConfigured) return;
+  try {
+    await createSupabaseAdminClient()
+      .from("vendor_leads")
+      .update({ temp_password: null })
+      .eq("vendor_id", userId)
+      .not("temp_password", "is", null);
+  } catch {
+    // Ignored on purpose — see above.
+  }
+}
 
 export interface AuthState {
   error?: string;
@@ -14,8 +34,10 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   const next = String(formData.get("next") ?? "/vendor") || "/vendor";
 
   const sb = await createSupabaseServerClient();
-  const { error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
+
+  if (data.user) await clearVendorTempPassword(data.user.id);
 
   redirect(next);
 }

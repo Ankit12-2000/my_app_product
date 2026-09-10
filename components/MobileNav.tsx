@@ -13,13 +13,20 @@ export function MobileNav() {
   // Navigating away should always leave the drawer closed.
   useEffect(() => setOpen(false), [pathname]);
 
+  // Escape closes the sheet, and the page behind it stops scrolling while
+  // it's open — otherwise a swipe on the backdrop moved the page underneath.
   useEffect(() => {
     if (!open) return;
-    function onKey(e: KeyboardEvent) {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
-    }
+    };
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -49,11 +56,11 @@ export function MobileNav() {
             aria-hidden
             tabIndex={-1}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-30 cursor-default bg-clay-950/20"
+            className="fixed inset-0 z-30 cursor-default bg-clay-950/25"
           />
           <nav
             id="mobile-nav"
-            className="absolute inset-x-0 top-full z-40 border-b border-clay-200 bg-white shadow-lg"
+            className="absolute inset-x-0 top-full z-40 max-h-[70vh] overflow-y-auto border-b border-clay-200 bg-white shadow-lg"
           >
             <ul className="mx-auto max-w-7xl px-4 py-2">
               {navItems.map((item) => {
@@ -65,9 +72,7 @@ export function MobileNav() {
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "flex items-center justify-between rounded-lg px-3 py-3 text-[15px] font-medium transition",
-                        active
-                          ? "bg-saffron-50 text-saffron-800"
-                          : "text-clay-700 hover:bg-clay-50"
+                        active ? "bg-saffron-50 text-saffron-800" : "text-clay-700 hover:bg-clay-50"
                       )}
                     >
                       {item.label}

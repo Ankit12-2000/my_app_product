@@ -5,6 +5,8 @@ import { getCategories, getMaterials } from "@/lib/data/queries";
 import { getVendorProduct } from "@/lib/data/vendor";
 import { updateProduct } from "@/app/actions/vendor";
 import { ProductForm } from "@/components/vendor/ProductForm";
+import { PageHeader } from "@/components/admin/ui";
+import { IconArrowLeft } from "@/components/admin/icons";
 
 export default async function EditProductPage({
   params,
@@ -21,14 +23,23 @@ export default async function EditProductPage({
   if (!product) notFound();
 
   return (
-    <div className="max-w-3xl space-y-4">
-      <Link href="/vendor/products" className="text-sm text-saffron-700 hover:underline">
-        ← Back to products
+    <div className="space-y-6">
+      <Link
+        href="/vendor/products"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-clay-500 transition hover:text-clay-900"
+      >
+        <IconArrowLeft className="h-3.5 w-3.5" />
+        Back to products
       </Link>
-      <h1 className="text-2xl font-bold">Edit product</h1>
-      <div className="rounded-2xl border border-clay-100 bg-white p-6">
-        <ProductForm action={updateProduct} product={product} categories={categories} materials={materials} submitLabel="Save changes" shopId={shop.id} />
-      </div>
+      <PageHeader title="Edit product" description={product.name} />
+      <ProductForm
+          action={updateProduct}
+          product={product}
+          categories={categories}
+          materials={materials}
+          submitLabel="Save changes"
+          shopId={shop.id}
+        />
     </div>
   );
 }

@@ -6,12 +6,16 @@ import { cn } from "@/lib/utils";
 import {
   IconArticle,
   IconBox,
+  IconChat,
   IconDashboard,
   IconImage,
   IconInbox,
   IconStore,
   IconTags,
 } from "@/components/admin/icons";
+
+export type BadgeKey = "leads" | "vendors" | "products" | "inquiries";
+export type NavCounts = Partial<Record<BadgeKey, number>>;
 
 type NavItem = {
   href: string;
@@ -20,9 +24,6 @@ type NavItem = {
   exact?: boolean;
   badgeKey?: BadgeKey;
 };
-
-export type BadgeKey = "leads" | "vendors" | "products";
-export type NavCounts = Partial<Record<BadgeKey, number>>;
 
 const GROUPS: { heading: string; items: NavItem[] }[] = [
   {
@@ -35,6 +36,7 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
       { href: "/admin/vendor-leads", label: "Vendor Leads", Icon: IconInbox, badgeKey: "leads" },
       { href: "/admin/vendors", label: "Vendors", Icon: IconStore, badgeKey: "vendors" },
       { href: "/admin/products", label: "Products", Icon: IconBox, badgeKey: "products" },
+      { href: "/admin/inquiries", label: "Inquiries", Icon: IconChat, badgeKey: "inquiries" },
       { href: "/admin/taxonomy", label: "Categories & Materials", Icon: IconTags },
     ],
   },
@@ -50,15 +52,20 @@ const GROUPS: { heading: string; items: NavItem[] }[] = [
 const isActive = (pathname: string, item: NavItem) =>
   item.exact ? pathname === item.href : pathname.startsWith(item.href);
 
-/** Desktop sidebar: grouped nav with pending-count badges. */
-export function AdminSidebar({ counts = {} }: { counts?: NavCounts }) {
+export function AdminNav({
+  counts = {},
+  onNavigate,
+}: {
+  counts?: NavCounts;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
     <nav className="flex flex-col gap-6">
       {GROUPS.map((group) => (
         <div key={group.heading}>
-          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-clay-400">
+          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.09em] text-clay-400">
             {group.heading}
           </p>
           <ul className="flex flex-col gap-0.5">
@@ -69,17 +76,18 @@ export function AdminSidebar({ counts = {} }: { counts?: NavCounts }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition",
+                      "group relative flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition",
                       active
-                        ? "bg-white text-clay-900 shadow-[0_1px_2px_rgba(46,40,32,0.06)] ring-1 ring-clay-200/70"
-                        : "text-clay-600 hover:bg-clay-100/70 hover:text-clay-900"
+                        ? "bg-clay-100 font-semibold text-clay-900"
+                        : "text-clay-500 hover:bg-clay-50 hover:text-clay-900"
                     )}
                   >
                     <span
                       className={cn(
-                        "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-saffron-600 transition-opacity",
+                        "absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-saffron-600 transition-opacity",
                         active ? "opacity-100" : "opacity-0"
                       )}
                     />
@@ -91,7 +99,12 @@ export function AdminSidebar({ counts = {} }: { counts?: NavCounts }) {
                     />
                     <span className="truncate">{item.label}</span>
                     {count > 0 && (
-                      <span className="ml-auto rounded-full bg-saffron-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white tabular">
+                      <span
+                        className={cn(
+                          "tabular ml-auto rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none",
+                          active ? "bg-saffron-600 text-white" : "bg-clay-200 text-clay-600"
+                        )}
+                      >
                         {count > 99 ? "99+" : count}
                       </span>
                     )}
@@ -103,46 +116,5 @@ export function AdminSidebar({ counts = {} }: { counts?: NavCounts }) {
         </div>
       ))}
     </nav>
-  );
-}
-
-/** Mobile: a horizontally scrollable pill bar shown below the header. */
-export function AdminMobileNav({ counts = {} }: { counts?: NavCounts }) {
-  const pathname = usePathname();
-  const items = GROUPS.flatMap((g) => g.items);
-
-  return (
-    <div className="admin-scroll -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 lg:hidden">
-      {items.map((item) => {
-        const active = isActive(pathname, item);
-        const count = item.badgeKey ? counts[item.badgeKey] ?? 0 : 0;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition",
-              active
-                ? "border-clay-900 bg-clay-900 text-white"
-                : "border-clay-200 bg-white text-clay-600 hover:border-clay-300"
-            )}
-          >
-            <item.Icon className="h-3.5 w-3.5" />
-            {item.label}
-            {count > 0 && (
-              <span
-                className={cn(
-                  "rounded-full px-1.5 text-[10px] font-bold tabular",
-                  active ? "bg-white/20 text-white" : "bg-saffron-100 text-saffron-700"
-                )}
-              >
-                {count}
-              </span>
-            )}
-          </Link>
-        );
-      })}
-    </div>
   );
 }

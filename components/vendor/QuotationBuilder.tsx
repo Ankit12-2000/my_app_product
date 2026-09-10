@@ -112,7 +112,8 @@ export function QuotationBuilder({ quotation, shop }: { quotation: QuotationRow;
 
       {/* Items */}
       <div className="rounded-2xl border border-clay-100 bg-white p-6">
-        <div className="mb-2 grid grid-cols-12 gap-2 text-xs font-medium uppercase tracking-wide text-clay-700/60">
+        {/* Column headings only make sense once the row is actually a row. */}
+        <div className="mb-2 hidden grid-cols-12 gap-2 text-xs font-medium uppercase tracking-wide text-clay-700/60 sm:grid">
           <div className="col-span-6">Description</div>
           <div className="col-span-2 text-right">Qty</div>
           <div className="col-span-2 text-right">Unit ₹</div>
@@ -120,37 +121,63 @@ export function QuotationBuilder({ quotation, shop }: { quotation: QuotationRow;
         </div>
         <div className="space-y-2">
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-12 items-center gap-2">
+            /* On a phone the 12-column row squeezed the description to a few
+               characters, so each line item becomes a small stacked card and
+               only becomes a true row from `sm` up. */
+            <div
+              key={i}
+              className="rounded-xl border border-clay-100 p-3 sm:grid sm:grid-cols-12 sm:items-center sm:gap-2 sm:rounded-none sm:border-0 sm:p-0"
+            >
               <input
                 name="item_description"
                 value={it.description}
                 onChange={(e) => setItem(i, { description: e.target.value })}
                 placeholder="e.g. Marble Ganesh 24 inch"
-                className="col-span-6 rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400"
+                aria-label="Item description"
+                className="w-full rounded-lg border border-clay-100 px-3 py-2 text-sm outline-none focus:border-saffron-400 sm:col-span-6"
               />
-              <input
-                name="item_quantity"
-                type="number"
-                min={1}
-                value={it.quantity}
-                onChange={(e) => setItem(i, { quantity: Number(e.target.value) })}
-                className="col-span-2 rounded-lg border border-clay-100 px-2 py-2 text-right text-sm outline-none focus:border-saffron-400"
-              />
-              <input
-                name="item_price"
-                type="number"
-                min={0}
-                value={it.unit_price}
-                onChange={(e) => setItem(i, { unit_price: Number(e.target.value) })}
-                className="col-span-2 rounded-lg border border-clay-100 px-2 py-2 text-right text-sm outline-none focus:border-saffron-400"
-              />
-              <div className="col-span-2 flex items-center justify-end gap-2">
-                <span className="text-sm tabular-nums">{formatPrice(it.quantity * it.unit_price)}</span>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:contents">
+                <label className="sm:contents">
+                  <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-clay-700/60 sm:hidden">
+                    Qty
+                  </span>
+                  <input
+                    name="item_quantity"
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={it.quantity}
+                    onChange={(e) => setItem(i, { quantity: Number(e.target.value) })}
+                    aria-label="Quantity"
+                    className="w-full rounded-lg border border-clay-100 px-2 py-2 text-right text-sm outline-none focus:border-saffron-400 sm:col-span-2"
+                  />
+                </label>
+                <label className="sm:contents">
+                  <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-clay-700/60 sm:hidden">
+                    Unit ₹
+                  </span>
+                  <input
+                    name="item_price"
+                    type="number"
+                    min={0}
+                    inputMode="decimal"
+                    value={it.unit_price}
+                    onChange={(e) => setItem(i, { unit_price: Number(e.target.value) })}
+                    aria-label="Unit price"
+                    className="w-full rounded-lg border border-clay-100 px-2 py-2 text-right text-sm outline-none focus:border-saffron-400 sm:col-span-2"
+                  />
+                </label>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2 border-t border-clay-100 pt-2 sm:col-span-2 sm:mt-0 sm:justify-end sm:border-0 sm:pt-0">
+                <span className="text-xs uppercase tracking-wide text-clay-700/60 sm:hidden">Amount</span>
+                <span className="text-sm font-semibold tabular-nums">
+                  {formatPrice(it.quantity * it.unit_price)}
+                </span>
                 <button
                   type="button"
                   onClick={() => removeItem(i)}
-                  className="text-clay-700/50 hover:text-red-600 print:hidden"
-                  aria-label="Remove item"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-clay-700/50 transition hover:bg-red-50 hover:text-red-600 print:hidden"
+                  aria-label={`Remove item ${i + 1}`}
                 >
                   ✕
                 </button>
@@ -167,7 +194,7 @@ export function QuotationBuilder({ quotation, shop }: { quotation: QuotationRow;
         </button>
 
         {/* Totals */}
-        <div className="mt-6 ml-auto max-w-xs space-y-2 text-sm">
+        <div className="mt-6 space-y-2 text-sm sm:ml-auto sm:max-w-xs">
           <Row label="Subtotal" value={formatPrice(totals.subtotal)} />
           <div className="flex items-center justify-between">
             <span>Discount ₹</span>

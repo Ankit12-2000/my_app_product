@@ -234,3 +234,71 @@ export function IconMenu(p: IconProps) {
     </Svg>
   );
 }
+
+export function IconSearch(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </Svg>
+  );
+}
+
+export function IconSpinner({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth={2.5} opacity={0.25} />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function IconChevronLeft(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="m15 6-6 6 6 6" />
+    </Svg>
+  );
+}
+
+export function IconClipboard(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M9 4h6v3H9z" />
+      <path d="M15 5.5h2A1.5 1.5 0 0 1 18.5 7v12A1.5 1.5 0 0 1 17 20.5H7A1.5 1.5 0 0 1 5.5 19V7A1.5 1.5 0 0 1 7 5.5h2" />
+      <path d="M9 12h6M9 16h4" />
+    </Svg>
+  );
+}
+
+export function IconCopy(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M15 6.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h.5" />
+    </Svg>
+  );
+}
+
+export function IconKey(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <circle cx="8" cy="8" r="4.2" />
+      <path d="m11 11 8 8M16.5 16.5 15 18M19 14l-1.5 1.5" />
+    </Svg>
+  );
+}
+
+export function IconRefresh(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6" />
+      <path d="M17.5 3v3.8h-3.8M6.5 21v-3.8h3.8" />
+    </Svg>
+  );
+}

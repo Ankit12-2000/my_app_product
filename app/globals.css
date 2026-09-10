@@ -25,15 +25,104 @@
   --color-clay-950: #1c1813;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Neutral shadow tint. The storefront's shadows are warm; the premium
+     admin/vendor theme swaps this to a cool near-black below. */
+  --shadow-tint: 46, 40, 32;
+}
+
+/* ------------------------------------------------------------------ */
+/* Premium theme — scoped to the admin & vendor panels only            */
+/* ------------------------------------------------------------------ */
+/* Tailwind v4 compiles every color utility to `var(--color-…)`, so we
+   can re-skin an entire subtree just by overriding those variables on a
+   wrapper. The admin and vendor layout roots carry `.theme-premium`,
+   which turns the warm saffron/clay marketplace palette into a cool,
+   minimal SaaS one — neutral zinc surfaces with a single indigo accent —
+   without touching a single utility class or the public storefront. */
+.theme-premium {
+  /* Accent (was warm saffron) → refined indigo, used sparingly. */
+  --color-saffron-50: #eef2ff;
+  --color-saffron-100: #e0e7ff;
+  --color-saffron-200: #c7d2fe;
+  --color-saffron-300: #a5b4fc;
+  --color-saffron-400: #818cf8;
+  --color-saffron-500: #6366f1;
+  --color-saffron-600: #4f46e5;
+  --color-saffron-700: #4338ca;
+  --color-saffron-800: #3730a3;
+  --color-saffron-900: #312e81;
+
+  /* Surfaces (was warm clay) → cool neutral zinc. */
+  --color-clay-50: #fafafa;
+  --color-clay-100: #f4f4f5;
+  --color-clay-200: #e4e4e7;
+  --color-clay-300: #d4d4d8;
+  --color-clay-400: #a1a1aa;
+  --color-clay-500: #71717a;
+  --color-clay-600: #52525b;
+  --color-clay-700: #3f3f46;
+  --color-clay-800: #27272a;
+  --color-clay-900: #18181b;
+  --color-clay-950: #09090b;
+
+  /* Cool, near-black shadow so cards read as crisp, not muddy. */
+  --shadow-tint: 24, 24, 27;
+
+  color: #18181b;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Landscape rotation on iOS otherwise inflates every font size. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background-color: var(--color-clay-50);
   color: var(--color-clay-900);
+  /* A stray wide element shouldn't let the whole page pan sideways on a
+     phone. `clip` rather than `hidden` on purpose: `hidden` would turn the
+     body into a scroll container and break every sticky header in the app. */
+  overflow-x: clip;
+}
+
+/* Grey flash on every tap in mobile Safari/Chrome. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari zooms the viewport whenever a focused field is under 16px, which
+   left forms scrolled off-centre and needing a pinch to get back. Below the
+   sm breakpoint every control gets 16px; the visual size is unchanged from
+   `sm` up, where no zoom happens. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Anything the design intends to scroll sideways (tables, filter rails) needs
+   momentum scrolling and must not be clipped by the body rule above. */
+.admin-scroll,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Respect the user's reduced-motion setting for our own transitions. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Simple line clamp helpers */
@@ -71,4 +160,9 @@ body {
 /* Numeric columns line up when digits share a width. */
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Long emails and slugs in narrow table cells break instead of overflowing. */
+.break-anywhere {
+  overflow-wrap: anywhere;
 }

@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { buttonClass, type ButtonSize, type ButtonVariant } from "@/components/admin/button-style";
 import { IconArrowLeft } from "@/components/admin/icons";
+
+/* ============================================================
+   Premium-minimal component kit for the admin & vendor panels.
+   Crisp 1px borders, generous whitespace, one indigo accent,
+   flat surfaces with a soft radius. No heavy shadows or gradients.
+   ============================================================ */
 
 /* ---------------- Page header ---------------- */
 
@@ -18,18 +25,18 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-clay-200/70 pb-5">
+    <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {backHref && (
           <Link
             href={backHref}
-            className="mb-2 inline-flex items-center gap-1.5 text-sm font-medium text-clay-500 transition hover:text-clay-900"
+            className="mb-2.5 inline-flex items-center gap-1.5 text-sm font-medium text-clay-500 transition hover:text-clay-900"
           >
             <IconArrowLeft className="h-3.5 w-3.5" />
             {backLabel ?? "Back"}
           </Link>
         )}
-        <h1 className="truncate text-[26px] font-semibold leading-tight tracking-[-0.02em] text-clay-900">
+        <h1 className="truncate text-2xl font-semibold tracking-tight text-clay-900 sm:text-[28px]">
           {title}
         </h1>
         {description && <p className="mt-1.5 max-w-2xl text-sm text-clay-500">{description}</p>}
@@ -51,7 +58,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-xl border border-clay-200/70 bg-white shadow-[0_1px_2px_rgba(46,40,32,0.04)]",
+        "overflow-hidden rounded-2xl border border-clay-200/80 bg-white",
         className
       )}
     >
@@ -82,7 +89,7 @@ export function CardHeader({
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-clay-400">{children}</h3>
+    <h3 className="text-[11px] font-semibold uppercase tracking-[0.09em] text-clay-400">{children}</h3>
   );
 }
 
@@ -98,15 +105,15 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
       {icon && (
-        <span className="mb-3 grid h-11 w-11 place-items-center rounded-full bg-clay-100 text-clay-400">
+        <span className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-clay-100 text-clay-400">
           {icon}
         </span>
       )}
       <p className="text-sm font-semibold text-clay-900">{title}</p>
       {description && <p className="mt-1 max-w-sm text-sm text-clay-500">{description}</p>}
-      {action && <div className="mt-4">{action}</div>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }
@@ -138,7 +145,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset",
         TONES[tone],
         className
       )}
@@ -151,41 +158,10 @@ export function Badge({
 
 /* ---------------- Buttons ---------------- */
 
-const VARIANTS = {
-  primary:
-    "bg-clay-900 text-white hover:bg-clay-800 focus-visible:outline-clay-900",
-  brand:
-    "bg-saffron-600 text-white hover:bg-saffron-700 focus-visible:outline-saffron-600",
-  success:
-    "bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:outline-emerald-600",
-  secondary:
-    "border border-clay-200 bg-white text-clay-700 hover:border-clay-300 hover:bg-clay-50 focus-visible:outline-clay-400",
-  ghost:
-    "text-clay-500 hover:bg-clay-100 hover:text-clay-900 focus-visible:outline-clay-400",
-  danger:
-    "border border-transparent text-rose-600 hover:bg-rose-50 focus-visible:outline-rose-400",
-} as const;
-
-const SIZES = {
-  sm: "h-8 gap-1.5 px-3 text-xs",
-  md: "h-9 gap-2 px-3.5 text-sm",
-  icon: "h-8 w-8 justify-center",
-} as const;
-
-export type ButtonVariant = keyof typeof VARIANTS;
-export type ButtonSize = keyof typeof SIZES;
-
-export const buttonClass = (
-  variant: ButtonVariant = "secondary",
-  size: ButtonSize = "sm",
-  className?: string
-) =>
-  cn(
-    "inline-flex items-center rounded-lg font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-55",
-    VARIANTS[variant],
-    SIZES[size],
-    className
-  );
+export { buttonClass } from "@/components/admin/button-style";
+export type { ButtonVariant, ButtonSize } from "@/components/admin/button-style";
+// ActionButton is a client component so it can show an in-flight spinner.
+export { ActionButton, SubmitButton } from "@/components/admin/ActionButton";
 
 export function Button({
   variant = "secondary",
@@ -220,45 +196,18 @@ export function ButtonLink({
   );
 }
 
-/**
- * A server-action button wrapped in its own form, with any number of hidden
- * fields. Keeps the action markup on list pages down to one line.
- */
-export function ActionButton({
-  action,
-  fields,
-  variant = "secondary",
-  size = "sm",
-  className,
-  title,
-  children,
-}: {
-  action: (formData: FormData) => void | Promise<void>;
-  fields: Record<string, string>;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-  title?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <form action={action} className="contents">
-      {Object.entries(fields).map(([name, value]) => (
-        <input key={name} type="hidden" name={name} value={value} />
-      ))}
-      <button title={title} className={buttonClass(variant, size, className)}>
-        {children}
-      </button>
-    </form>
-  );
-}
-
 /* ---------------- Table ---------------- */
 
-export function Table({ children }: { children: React.ReactNode }) {
+export function Table({
+  children,
+  minWidth = "min-w-[680px]",
+}: {
+  children: React.ReactNode;
+  minWidth?: string;
+}) {
   return (
-    <div className="admin-scroll overflow-x-auto">
-      <table className="w-full min-w-[640px] border-collapse text-sm">{children}</table>
+    <div className="admin-scroll -mx-px overflow-x-auto">
+      <table className={cn("w-full border-collapse text-sm", minWidth)}>{children}</table>
     </div>
   );
 }
@@ -273,7 +222,7 @@ export function Th({
   return (
     <th
       className={cn(
-        "border-b border-clay-200/70 bg-clay-50/60 px-5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-clay-500",
+        "sticky top-0 z-10 border-b border-clay-200/70 bg-white px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.07em] text-clay-400 sm:px-5",
         className
       )}
     >
@@ -290,20 +239,20 @@ export function Td({
   className?: string;
 }) {
   return (
-    <td className={cn("border-b border-clay-100 px-5 py-3 align-middle text-clay-700", className)}>
+    <td className={cn("border-b border-clay-100 px-4 py-3.5 align-middle text-clay-700 sm:px-5", className)}>
       {children}
     </td>
   );
 }
 
 export function Tr({ children }: { children: React.ReactNode }) {
-  return <tr className="transition-colors last:[&>td]:border-b-0 hover:bg-clay-50/70">{children}</tr>;
+  return <tr className="transition-colors last:[&>td]:border-b-0 hover:bg-clay-50">{children}</tr>;
 }
 
 /* ---------------- Form fields ---------------- */
 
 export const inputClass =
-  "w-full rounded-lg border border-clay-200 bg-white px-3 py-2 text-sm text-clay-900 placeholder:text-clay-400 transition outline-none focus:border-saffron-400 focus:ring-2 focus:ring-saffron-400/25";
+  "h-10 w-full rounded-lg border border-clay-200 bg-white px-3 text-sm text-clay-900 placeholder:text-clay-400 outline-none transition focus:border-saffron-400 focus:ring-2 focus:ring-saffron-400/25";
 
 export function Field({
   label,
@@ -362,5 +311,108 @@ export function Avatar({ name, className }: { name: string; className?: string }
     >
       {initials || "?"}
     </span>
+  );
+}
+
+/* ---------------- Responsive list scaffolding ---------------- */
+
+export function DesktopOnly({ children }: { children: React.ReactNode }) {
+  return <div className="hidden md:block">{children}</div>;
+}
+
+export function MobileOnly({ children }: { children: React.ReactNode }) {
+  return <div className="md:hidden">{children}</div>;
+}
+
+export function CardList({ children }: { children: React.ReactNode }) {
+  return <ul className="divide-y divide-clay-100">{children}</ul>;
+}
+
+export function CardListItem({
+  media,
+  title,
+  meta,
+  badges,
+  actions,
+}: {
+  media?: React.ReactNode;
+  title: React.ReactNode;
+  meta?: React.ReactNode;
+  badges?: React.ReactNode;
+  actions?: React.ReactNode;
+}) {
+  return (
+    <li className="p-4">
+      <div className="flex gap-3">
+        {media && <div className="shrink-0">{media}</div>}
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-semibold leading-snug text-clay-900">{title}</div>
+          {meta && <div className="mt-1 space-y-0.5 text-sm text-clay-500">{meta}</div>}
+          {badges && <div className="mt-2 flex flex-wrap items-center gap-1.5">{badges}</div>}
+        </div>
+      </div>
+      {actions && (
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-clay-100 pt-3">
+          {actions}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/* ---------------- Stat tile ---------------- */
+
+export function StatTile({
+  label,
+  value,
+  href,
+  icon,
+  hint,
+  tone = "neutral",
+}: {
+  label: string;
+  value: number | string;
+  href?: string;
+  icon?: React.ReactNode;
+  hint?: string;
+  tone?: "neutral" | "urgent";
+}) {
+  const urgent = tone === "urgent" && Number(value) > 0;
+
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[13px] font-medium text-clay-500">{label}</span>
+        {icon && (
+          <span
+            className={cn(
+              "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+              urgent ? "bg-saffron-600 text-white" : "bg-clay-100 text-clay-500"
+            )}
+          >
+            {icon}
+          </span>
+        )}
+      </div>
+      <div className="mt-4 flex items-end justify-between gap-2">
+        <span className="tabular text-[30px] font-semibold leading-none tracking-tight text-clay-900 sm:text-[34px]">
+          {value}
+        </span>
+        {hint && <span className="pb-1 text-xs text-clay-400">{hint}</span>}
+      </div>
+    </>
+  );
+
+  const shell = "flex flex-col justify-between rounded-2xl border border-clay-200/80 bg-white p-5";
+
+  if (!href) return <div className={shell}>{body}</div>;
+
+  return (
+    <Link
+      href={href}
+      className={cn(shell, "group transition hover:border-clay-300 hover:bg-clay-50/50")}
+    >
+      {body}
+    </Link>
   );
 }

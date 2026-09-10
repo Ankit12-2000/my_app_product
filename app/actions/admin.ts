@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isServiceRoleConfigured } from "@/lib/supabase/config";
+import { generateTempPassword, resolveLoginEmail } from "@/lib/vendor-credentials";
 
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
@@ -207,6 +209,134 @@ export async function deleteBanner(formData: FormData) {
 }
 
 // ---------- Vendor Leads ----------
+
+type AdminClient = ReturnType<typeof createSupabaseAdminClient>;
+
+function requireServiceRole(): AdminClient {
+  if (!isServiceRoleConfigured) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is not set in .env.local, so vendor logins cannot be created. " +
+        "Copy the service_role key from Supabase → Settings → API and restart the dev server."
+    );
+  }
+  return createSupabaseAdminClient();
+}
+
+/**
+ * The admin auth API has no lookup-by-email, so we page through users. Only
+ * reached when createUser reports a duplicate, which is rare — a vendor who
+ * submitted the lead form twice, or one who already signed up themselves.
+ */
+async function findUserIdByEmail(sb: AdminClient, email: string): Promise<string | null> {
+  const target = email.toLowerCase();
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error || !data.users.length) return null;
+    const hit = data.users.find((u) => u.email?.toLowerCase() === target);
+    if (hit) return hit.id;
+    if (data.users.length < 1000) return null;
+  }
+  return null;
+}
+
+/**
+ * Approve a lead and provision the vendor's login in one step.
+ *
+ * The generated password is stored on the lead so the admin can pass it to the
+ * vendor (over WhatsApp, usually) after the fact; it is cleared the moment the
+ * vendor first signs in — see clearVendorTempPassword in app/actions/auth.ts.
+ * Only admins can read vendor_leads, so it is never exposed to the vendor or
+ * the public.
+ */
+export async function approveVendorLead(formData: FormData) {
+  await requireAdmin();
+  const sb = requireServiceRole();
+  const id = String(formData.get("id") ?? "");
+
+  const { data: lead, error: leadErr } = await sb
+    .from("vendor_leads")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (leadErr) throw new Error(`Could not load the lead: ${leadErr.message}`);
+  if (!lead) throw new Error("That lead no longer exists.");
+
+  // Already provisioned — just make sure the status reflects it.
+  if (lead.vendor_id) {
+    await sb.from("vendor_leads").update({ status: "approved" }).eq("id", id);
+    revalidatePath("/admin/vendor-leads");
+    return;
+  }
+
+  const { email } = resolveLoginEmail(lead);
+  const password = generateTempPassword();
+  const fullName = String(lead.full_name ?? "").trim();
+  const phone = String(lead.phone ?? "").trim();
+
+  const { data: created, error: createErr } = await sb.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName, phone },
+  });
+
+  let vendorId = created?.user?.id ?? null;
+
+  if (createErr) {
+    // A duplicate is expected when the same vendor submitted the form twice.
+    // Reuse their account and reset the password rather than failing the approval.
+    const existingId = await findUserIdByEmail(sb, email);
+    if (!existingId) throw new Error(`Could not create the vendor login: ${createErr.message}`);
+    const { error: pwErr } = await sb.auth.admin.updateUserById(existingId, { password });
+    if (pwErr) throw new Error(`Could not reset the existing account password: ${pwErr.message}`);
+    vendorId = existingId;
+  }
+
+  if (!vendorId) throw new Error("Supabase returned no user id for the new vendor login.");
+
+  // The on_auth_user_created trigger inserts the profile; make sure the role is
+  // right even when we linked an account that already existed.
+  await sb.from("profiles").upsert(
+    { id: vendorId, full_name: fullName, phone, role: "vendor" },
+    { onConflict: "id" }
+  );
+
+  const { error: updErr } = await sb
+    .from("vendor_leads")
+    .update({
+      status: "approved",
+      vendor_id: vendorId,
+      login_email: email,
+      temp_password: password,
+      account_created_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (updErr) throw new Error(`Account created, but saving the credentials failed: ${updErr.message}`);
+
+  revalidatePath("/admin/vendor-leads");
+  revalidatePath("/admin/vendors");
+}
+
+/** Issue a fresh password — used when the vendor lost or never received it. */
+export async function resetVendorLeadPassword(formData: FormData) {
+  await requireAdmin();
+  const sb = requireServiceRole();
+  const id = String(formData.get("id") ?? "");
+
+  const { data: lead } = await sb
+    .from("vendor_leads")
+    .select("id, vendor_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!lead?.vendor_id) throw new Error("This lead has no vendor account yet — approve it first.");
+
+  const password = generateTempPassword();
+  const { error } = await sb.auth.admin.updateUserById(lead.vendor_id, { password });
+  if (error) throw new Error(`Password reset failed: ${error.message}`);
+
+  await sb.from("vendor_leads").update({ temp_password: password }).eq("id", id);
+  revalidatePath("/admin/vendor-leads");
+}
 
 export async function setVendorLeadStatus(formData: FormData) {
   await requireAdmin();

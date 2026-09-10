@@ -128,7 +128,7 @@ export default async function InquiryDetailPage({
                   <option key={s} value={s}>{STATUS_META[s].label}</option>
                 ))}
               </select>
-              <button className="w-full rounded-xl bg-gradient-to-r from-saffron-500 to-saffron-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-saffron-200 transition hover:shadow-lg">
+              <button className="w-full rounded-xl bg-saffron-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg">
                 Save Status
               </button>
             </form>

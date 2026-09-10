@@ -8,7 +8,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-clay-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-saffron-200 hover:shadow-[0_16px_40px_-16px_rgba(46,40,32,0.28)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-clay-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-saffron-200 hover:shadow-[0_16px_40px_-16px_rgba(var(--shadow-tint),0.28)]"
     >
       <div className="relative aspect-square overflow-hidden bg-clay-50">
         <Thumb

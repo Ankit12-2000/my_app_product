@@ -39,7 +39,7 @@ export default async function AdminBannersPage() {
               {banners.map((b, i) => (
                 <div
                   key={b.id}
-                  className="group overflow-hidden rounded-xl border border-clay-200/70 bg-white transition hover:border-clay-300 hover:shadow-[0_4px_12px_rgba(46,40,32,0.07)]"
+                  className="group overflow-hidden rounded-xl border border-clay-200/70 bg-white transition hover:border-clay-300 hover:shadow-[0_4px_12px_rgba(var(--shadow-tint),0.07)]"
                 >
                   <div className="relative aspect-[3/1] bg-clay-100">
                     <Thumb
@@ -68,6 +68,7 @@ export default async function AdminBannersPage() {
                       variant="ghost"
                       size="icon"
                       title={`Delete "${b.title}"`}
+                      confirm={`Remove the “${b.title}” banner from the homepage?`}
                       className="shrink-0 hover:bg-rose-50 hover:text-rose-600"
                     >
                       <IconTrash className="h-4 w-4" />

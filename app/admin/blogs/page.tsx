@@ -7,7 +7,11 @@ import {
   ButtonLink,
   Card,
   CardHeader,
+  CardList,
+  CardListItem,
+  DesktopOnly,
   EmptyState,
+  MobileOnly,
   PageHeader,
   Table,
   Td,
@@ -54,12 +58,14 @@ export default async function AdminBlogsPage() {
             }
           />
         ) : (
-          <Table>
+          <>
+            <DesktopOnly>
+            <Table minWidth="min-w-[560px]">
             <thead>
               <tr>
                 <Th>Title</Th>
-                <Th className="hidden sm:table-cell">Author</Th>
-                <Th className="hidden sm:table-cell">Published</Th>
+                <Th>Author</Th>
+                <Th className="hidden lg:table-cell">Published</Th>
                 <Th className="text-right">Actions</Th>
               </tr>
             </thead>
@@ -77,8 +83,8 @@ export default async function AdminBlogsPage() {
                       <p className="mt-0.5 line-clamp-1 max-w-md text-xs text-clay-400">{p.excerpt}</p>
                     )}
                   </Td>
-                  <Td className="hidden text-clay-600 sm:table-cell">{p.author ?? "—"}</Td>
-                  <Td className="hidden whitespace-nowrap text-clay-600 sm:table-cell">
+                  <Td className="text-clay-600">{p.author ?? "—"}</Td>
+                  <Td className="hidden whitespace-nowrap text-clay-600 lg:table-cell">
                     {dateFmt.format(new Date(p.published_at))}
                   </Td>
                   <Td>
@@ -95,6 +101,7 @@ export default async function AdminBlogsPage() {
                         variant="ghost"
                         size="icon"
                         title={`Delete "${p.title}"`}
+                        confirm={`Permanently delete “${p.title}”? This cannot be undone.`}
                         className="hover:bg-rose-50 hover:text-rose-600"
                       >
                         <IconTrash className="h-4 w-4" />
@@ -105,7 +112,54 @@ export default async function AdminBlogsPage() {
                 </Tr>
               ))}
             </tbody>
-          </Table>
+            </Table>
+            </DesktopOnly>
+
+            <MobileOnly>
+              <CardList>
+                {posts.map((p) => (
+                  <CardListItem
+                    key={p.id}
+                    title={
+                      <Link href={`/admin/blogs/${p.id}/edit`} className="hover:text-saffron-700">
+                        {p.title}
+                      </Link>
+                    }
+                    meta={
+                      <>
+                        {p.excerpt && <p className="clamp-2">{p.excerpt}</p>}
+                        <p className="text-clay-400">
+                          {p.author ?? "—"} · {dateFmt.format(new Date(p.published_at))}
+                        </p>
+                      </>
+                    }
+                    actions={
+                      <>
+                        <Link
+                          href={`/admin/blogs/${p.id}/edit`}
+                          className="rounded-lg border border-clay-200 px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:bg-clay-50"
+                        >
+                          Edit
+                        </Link>
+                        <ActionButton
+                          action={deleteBlog}
+                          fields={{ id: p.id }}
+                          variant="ghost"
+                          size="icon"
+                          title={`Delete "${p.title}"`}
+                          confirm={`Permanently delete “${p.title}”? This cannot be undone.`}
+                          className="ml-auto hover:bg-rose-50 hover:text-rose-600"
+                        >
+                          <IconTrash className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </ActionButton>
+                      </>
+                    }
+                  />
+                ))}
+              </CardList>
+            </MobileOnly>
+          </>
         )}
       </Card>
     </div>

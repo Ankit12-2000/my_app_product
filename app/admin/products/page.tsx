@@ -1,16 +1,27 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { listAllProducts } from "@/lib/data/admin";
+import {
+  getAdminStats,
+  listProductsPage,
+  type ProductSort,
+  type ProductStatusFilter,
+} from "@/lib/data/admin";
+import { parsePage } from "@/lib/data/paging";
 import { setProductApproval, setProductFeatured } from "@/app/actions/admin";
 import { Thumb } from "@/components/Thumb";
 import { priceLabel, primaryImage } from "@/lib/utils";
 import { deityIcon } from "@/lib/images";
+import { FilterTabs, SearchInput, SortSelect, Toolbar } from "@/components/admin/Toolbar";
+import { PageNav } from "@/components/admin/PageNav";
 import {
   ActionButton,
   Badge,
   Card,
-  CardHeader,
+  CardList,
+  CardListItem,
+  DesktopOnly,
   EmptyState,
+  MobileOnly,
   PageHeader,
   Table,
   Td,
@@ -19,121 +30,222 @@ import {
 } from "@/components/admin/ui";
 import { IconBox, IconCheck, IconStar, IconUndo } from "@/components/admin/icons";
 
-export default async function AdminProductsPage() {
-  await requireAdmin();
-  const products = await listAllProducts();
+const STATUSES: ProductStatusFilter[] = ["all", "pending", "live", "featured"];
+const SORTS: ProductSort[] = ["newest", "oldest", "name", "price_desc"];
 
-  const live = products.filter((p) => p.is_approved).length;
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "name", label: "Name A–Z" },
+  { value: "price_desc", label: "Highest price" },
+];
+
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; sort?: string; page?: string }>;
+}) {
+  await requireAdmin();
+  const sp = await searchParams;
+
+  const status = (STATUSES as string[]).includes(sp.status ?? "") ? (sp.status as ProductStatusFilter) : "all";
+  const sort = (SORTS as string[]).includes(sp.sort ?? "") ? (sp.sort as ProductSort) : "newest";
+
+  const [{ rows, total, page, pageCount, pageSize }, stats] = await Promise.all([
+    listProductsPage({ page: parsePage(sp.page), q: sp.q, status, sort }),
+    getAdminStats(),
+  ]);
+
+  const tabs = [
+    { value: "all", label: "All", count: stats.productsTotal },
+    { value: "pending", label: "Pending", count: stats.productsPending },
+    { value: "live", label: "Live", count: stats.productsTotal - stats.productsPending },
+    { value: "featured", label: "Featured", count: stats.productsFeatured },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Products"
         description="Approve products to list them publicly, and feature the standouts on the homepage."
       />
 
+      <Toolbar>
+        <SearchInput placeholder="Search by name, deity or city…" />
+        <SortSelect options={SORT_OPTIONS} />
+        <div className="w-full sm:w-auto">
+          <FilterTabs tabs={tabs} />
+        </div>
+      </Toolbar>
+
       <Card>
-        <CardHeader
-          title="All products"
-          description={`${products.length} total · ${live} live · ${products.length - live} pending`}
-        />
-        {products.length === 0 ? (
+        {rows.length === 0 ? (
           <EmptyState
             icon={<IconBox className="h-5 w-5" />}
-            title="No products yet"
-            description="Products added by vendors will show up here for approval."
+            title={sp.q ? `No products match “${sp.q}”` : "No products here"}
+            description={
+              sp.q
+                ? "Try a different search term or clear the filters."
+                : "Products added by vendors will show up here for approval."
+            }
           />
         ) : (
-          <Table>
-            <thead>
-              <tr>
-                <Th>Product</Th>
-                <Th className="hidden md:table-cell">Vendor</Th>
-                <Th className="hidden sm:table-cell">Price</Th>
-                <Th>Status</Th>
-                <Th className="w-16 text-center">Featured</Th>
-                <Th className="text-right">Actions</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <Tr key={p.id}>
-                  <Td>
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-clay-100 ring-1 ring-clay-200/70">
-                        <Thumb
-                          src={primaryImage(p)}
-                          alt={p.name}
-                          seed={p.slug}
-                          icon={deityIcon(p.deity)}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0">
+          <>
+            <DesktopOnly>
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>Product</Th>
+                    <Th className="hidden lg:table-cell">Vendor</Th>
+                    <Th>Price</Th>
+                    <Th>Status</Th>
+                    <Th className="w-16 text-center">Featured</Th>
+                    <Th className="text-right">Actions</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((p) => (
+                    <Tr key={p.id}>
+                      <Td>
+                        <div className="flex items-center gap-3">
+                          <ProductThumb product={p} />
+                          <Link
+                            href={`/admin/products/${p.id}`}
+                            className="block min-w-0 truncate font-medium text-clay-900 transition hover:text-saffron-700"
+                          >
+                            {p.name}
+                          </Link>
+                        </div>
+                      </Td>
+                      <Td className="hidden max-w-[180px] truncate text-clay-600 lg:table-cell">
+                        {p.shop?.name ?? "—"}
+                      </Td>
+                      <Td className="tabular whitespace-nowrap text-clay-600">{priceLabel(p)}</Td>
+                      <Td>
+                        <Badge tone={p.is_approved ? "success" : "warning"} dot>
+                          {p.is_approved ? "Live" : "Pending"}
+                        </Badge>
+                      </Td>
+                      <Td className="text-center">
+                        <FeatureButton product={p} />
+                      </Td>
+                      <Td>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <ApproveButton product={p} />
+                          <Link
+                            href={`/admin/products/${p.id}`}
+                            className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-clay-500 transition hover:bg-clay-100 hover:text-clay-900"
+                          >
+                            Detail
+                          </Link>
+                        </div>
+                      </Td>
+                    </Tr>
+                  ))}
+                </tbody>
+              </Table>
+            </DesktopOnly>
+
+            <MobileOnly>
+              <CardList>
+                {rows.map((p) => (
+                  <CardListItem
+                    key={p.id}
+                    media={<ProductThumb product={p} size="lg" />}
+                    title={
+                      <Link href={`/admin/products/${p.id}`} className="hover:text-saffron-700">
+                        {p.name}
+                      </Link>
+                    }
+                    meta={
+                      <>
+                        <p className="tabular font-medium text-clay-700">{priceLabel(p)}</p>
+                        {p.shop?.name && <p className="truncate">{p.shop.name}</p>}
+                      </>
+                    }
+                    badges={
+                      <>
+                        <Badge tone={p.is_approved ? "success" : "warning"} dot>
+                          {p.is_approved ? "Live" : "Pending"}
+                        </Badge>
+                        {p.is_featured && <Badge tone="brand">Featured</Badge>}
+                      </>
+                    }
+                    actions={
+                      <>
+                        <ApproveButton product={p} />
+                        <FeatureButton product={p} />
                         <Link
                           href={`/admin/products/${p.id}`}
-                          className="block truncate font-medium text-clay-900 transition hover:text-saffron-700"
+                          className="ml-auto rounded-lg px-2.5 py-1.5 text-xs font-semibold text-clay-500 transition hover:bg-clay-100 hover:text-clay-900"
                         >
-                          {p.name}
+                          Detail →
                         </Link>
-                        <span className="block truncate text-xs text-clay-400 sm:hidden">
-                          {priceLabel(p)}
-                        </span>
-                      </div>
-                    </div>
-                  </Td>
-                  <Td className="hidden text-clay-600 md:table-cell">{p.shop?.name ?? "—"}</Td>
-                  <Td className="hidden whitespace-nowrap tabular text-clay-600 sm:table-cell">
-                    {priceLabel(p)}
-                  </Td>
-                  <Td>
-                    <Badge tone={p.is_approved ? "success" : "warning"} dot>
-                      {p.is_approved ? "Live" : "Pending"}
-                    </Badge>
-                  </Td>
-                  <Td className="text-center">
-                    <ActionButton
-                      action={setProductFeatured}
-                      fields={{ id: p.id, featured: (!p.is_featured).toString() }}
-                      variant="ghost"
-                      size="icon"
-                      title={p.is_featured ? "Remove from featured" : "Mark as featured"}
-                      className={p.is_featured ? "text-saffron-500 hover:text-saffron-600" : "text-clay-300"}
-                    >
-                      <IconStar className="h-[18px] w-[18px]" filled={p.is_featured} />
-                      <span className="sr-only">{p.is_featured ? "Unfeature" : "Feature"}</span>
-                    </ActionButton>
-                  </Td>
-                  <Td>
-                    <div className="flex items-center justify-end gap-1.5">
-                      <ActionButton
-                        action={setProductApproval}
-                        fields={{ id: p.id, approve: (!p.is_approved).toString() }}
-                        variant={p.is_approved ? "secondary" : "success"}
-                      >
-                        {p.is_approved ? (
-                          <IconUndo className="h-3.5 w-3.5" />
-                        ) : (
-                          <IconCheck className="h-3.5 w-3.5" />
-                        )}
-                        {p.is_approved ? "Unapprove" : "Approve"}
-                      </ActionButton>
-                      <Link
-                        href={`/admin/products/${p.id}`}
-                        className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-clay-500 transition hover:bg-clay-100 hover:text-clay-900"
-                      >
-                        Detail
-                      </Link>
-                    </div>
-                  </Td>
-                </Tr>
-              ))}
-            </tbody>
-          </Table>
+                      </>
+                    }
+                  />
+                ))}
+              </CardList>
+            </MobileOnly>
+
+            <PageNav
+              page={page}
+              pageCount={pageCount}
+              total={total}
+              pageSize={pageSize}
+              label="products"
+            />
+          </>
         )}
       </Card>
     </div>
+  );
+}
+
+type ListProduct = Awaited<ReturnType<typeof listProductsPage>>["rows"][number];
+
+function ProductThumb({ product, size = "sm" }: { product: ListProduct; size?: "sm" | "lg" }) {
+  const box = size === "lg" ? "h-14 w-14" : "h-10 w-10";
+  return (
+    <div className={`relative ${box} shrink-0 overflow-hidden rounded-lg bg-clay-100 ring-1 ring-clay-200/70`}>
+      <Thumb
+        src={primaryImage(product)}
+        alt={product.name}
+        seed={product.slug}
+        icon={deityIcon(product.deity)}
+        fill
+        sizes="56px"
+        className="object-cover"
+      />
+    </div>
+  );
+}
+
+function ApproveButton({ product }: { product: ListProduct }) {
+  return (
+    <ActionButton
+      action={setProductApproval}
+      fields={{ id: product.id, approve: (!product.is_approved).toString() }}
+      variant={product.is_approved ? "secondary" : "success"}
+    >
+      {product.is_approved ? <IconUndo className="h-3.5 w-3.5" /> : <IconCheck className="h-3.5 w-3.5" />}
+      {product.is_approved ? "Unapprove" : "Approve"}
+    </ActionButton>
+  );
+}
+
+function FeatureButton({ product }: { product: ListProduct }) {
+  return (
+    <ActionButton
+      action={setProductFeatured}
+      fields={{ id: product.id, featured: (!product.is_featured).toString() }}
+      variant="ghost"
+      size="icon"
+      title={product.is_featured ? "Remove from featured" : "Mark as featured"}
+      className={product.is_featured ? "text-saffron-500 hover:text-saffron-600" : "text-clay-300"}
+    >
+      <IconStar className="h-[18px] w-[18px]" filled={product.is_featured} />
+      <span className="sr-only">{product.is_featured ? "Unfeature" : "Feature"}</span>
+    </ActionButton>
   );
 }

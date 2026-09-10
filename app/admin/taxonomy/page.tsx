@@ -35,7 +35,8 @@ function TaxonomyRow({
         variant="ghost"
         size="icon"
         title={`Delete ${name}`}
-        className="opacity-0 transition group-hover:opacity-100 focus-visible:opacity-100 hover:bg-rose-50 hover:text-rose-600"
+        confirm={`Delete “${name}”? Products already using it keep the reference until it is reassigned.`}
+        className="transition hover:bg-rose-50 hover:text-rose-600 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100"
       >
         <IconTrash className="h-4 w-4" />
         <span className="sr-only">Delete {name}</span>
