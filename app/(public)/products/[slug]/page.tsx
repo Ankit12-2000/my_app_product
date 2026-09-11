@@ -144,7 +144,7 @@ export default async function ProductPage({
       </nav>
 
       {/* Main grid: photo wall on the left, the buying panel on the right. */}
-      <div className="mt-4 grid gap-6 sm:mt-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[360px_minmax(0,1fr)] xl:gap-10">
+      <div className="mt-4 grid gap-6 sm:mt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-8 xl:gap-10">
         <div className="h-fit lg:sticky lg:top-20">
           <ProductGallery
             images={product.images}
@@ -155,13 +155,49 @@ export default async function ProductPage({
         </div>
 
         <div className="space-y-5">
+          {/* Status + category chips */}
+          <div className="flex flex-wrap items-center gap-2">
+            {product.in_stock ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+                In Stock
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
+                Made to Order
+              </span>
+            )}
+            {product.category && (
+              <Link
+                href={`/categories/${product.category.slug}`}
+                className="rounded-full bg-clay-100 px-3 py-1 text-xs font-semibold text-clay-700 transition hover:bg-clay-200"
+              >
+                {product.category.name}
+              </Link>
+            )}
+          </div>
+
+          {/* Title, rating, location */}
           <div>
-            <h1 className="text-xl font-bold leading-snug text-clay-900 sm:text-2xl">
+            <h1 className="text-2xl font-extrabold leading-snug tracking-tight text-clay-900 sm:text-[28px]">
               {product.name}
             </h1>
 
+            {product.shop && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <StarRating rating={product.shop.rating} count={product.shop.review_count} size="md" />
+                <Link
+                  href={`/shop/${product.shop.slug}#reviews`}
+                  className="text-sm font-semibold text-saffron-700 hover:underline"
+                >
+                  Seller reviews
+                </Link>
+              </div>
+            )}
+
             {location && (
-              <p className="mt-2 flex items-center gap-1.5 text-sm text-clay-600">
+              <p className="mt-2.5 flex items-center gap-1.5 text-sm text-clay-600">
                 <svg className="h-4 w-4 text-clay-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -169,97 +205,126 @@ export default async function ProductPage({
                 {location}
               </p>
             )}
+          </div>
 
-            <p className="mt-3 text-2xl font-bold tracking-tight text-clay-900 sm:text-3xl">
-              {priceLabel(product)}
-              <span className="ml-1 text-base font-normal text-clay-500">/Piece</span>
+          {/* Price card */}
+          <div className="rounded-2xl border border-saffron-200 bg-gradient-to-br from-saffron-50 to-white p-4 shadow-sm sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-clay-500">Price</p>
+                <p className="mt-1 text-3xl font-extrabold tracking-tight text-clay-900 sm:text-4xl">
+                  {priceLabel(product)}
+                  <span className="ml-1 text-base font-medium text-clay-500">/Piece</span>
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-clay-800 shadow-sm ring-1 ring-clay-200">
+                {product.in_stock ? "Verified Artisan" : "Made on Request"}
+              </span>
+            </div>
+            <p className="mt-3 border-t border-saffron-100 pt-2.5 text-xs leading-relaxed text-clay-500">
+              Price is quoted after inquiry — custom sizes, finishes &amp; inscriptions available.
             </p>
           </div>
 
-          <a
-            href="#inquiry"
-            className="flex w-full max-w-sm items-center justify-center rounded-lg bg-saffron-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-saffron-700 hover:shadow sm:text-base"
-          >
-            Get Latest Price
-          </a>
+          {/* Quick contact actions */}
+          {product.shop && (
+            <ProductActions
+              productName={product.name}
+              productUrl={`https://murtimarket.online/products/${product.slug}`}
+              phone={product.shop.phone}
+              whatsapp={product.shop.whatsapp}
+            />
+          )}
 
-          {/* Specification table */}
+          {/* Assurance pills */}
+          <ul className="grid gap-2 sm:grid-cols-3">
+            {inquiryAssurances.map((a) => (
+              <li
+                key={a}
+                className="flex items-start gap-1.5 rounded-xl bg-clay-50 px-3 py-2.5 text-[11px] font-medium leading-snug text-clay-700"
+              >
+                <span aria-hidden className="mt-px text-sm text-emerald-600">
+                  ✓
+                </span>
+                {a}
+              </li>
+            ))}
+          </ul>
+
+          {/* Specifications */}
           {visibleSpecs.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-clay-200">
-              <table className="w-full text-left text-sm">
-                <tbody>
-                  {visibleSpecs.map((s, i) => (
-                    <tr key={s.label} className={i % 2 === 0 ? "bg-clay-50" : "bg-white"}>
-                      <th
-                        scope="row"
-                        className="w-40 px-3 py-2.5 font-normal text-clay-600 sm:w-56 sm:px-4"
-                      >
-                        {s.label}
-                      </th>
-                      <td className="px-3 py-2.5 font-semibold text-clay-900 sm:px-4">
-                        {s.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div>
+              <h2 className="text-sm font-bold text-clay-900">Product Details</h2>
+              <dl className="mt-2.5 grid grid-cols-2 gap-2">
+                {visibleSpecs.map((s) => (
+                  <div key={s.label} className="rounded-xl border border-clay-100 bg-white px-3 py-2.5">
+                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-clay-500">{s.label}</dt>
+                    <dd className="mt-0.5 text-sm font-bold text-clay-900">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           )}
 
           {product.description && (
-            <p className="text-sm leading-relaxed text-clay-700">{product.description}</p>
+            <div>
+              <h2 className="text-sm font-bold text-clay-900">About this Statue</h2>
+              <p className="mt-2 text-sm leading-relaxed text-clay-700">{product.description}</p>
+            </div>
           )}
 
-          <div>
-            <h2 className="text-sm font-bold text-clay-900">Key Features:</h2>
-            <ul className="mt-2 space-y-2 text-sm leading-relaxed text-clay-700">
-              {features.map((f) => (
-                <li key={f.label}>
-                  <span className="font-semibold text-clay-900">{f.label}:</span> {f.text}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {product.shop && (
-            <div className="max-w-md">
-              <ProductActions
-                productName={product.name}
-                productUrl={`https://murtimarket.online/products/${product.slug}`}
-                phone={product.shop.phone}
-                whatsapp={product.shop.whatsapp}
-              />
+          {features.length > 0 && (
+            <div>
+              <h2 className="text-sm font-bold text-clay-900">Key Features</h2>
+              <ul className="mt-2.5 space-y-2">
+                {features.map((f) => (
+                  <li key={f.label} className="flex gap-2.5 rounded-xl border border-clay-100 bg-white p-3">
+                    <span
+                      aria-hidden
+                      className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-saffron-100 text-[11px] font-bold text-saffron-700"
+                    >
+                      ✓
+                    </span>
+                    <p className="text-sm leading-relaxed text-clay-700">
+                      <span className="font-bold text-clay-900">{f.label}:</span> {f.text}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
           {/* Seller */}
           {product.shop && (
-            <Link
-              href={`/shop/${product.shop.slug}`}
-              className="flex max-w-2xl items-center gap-3 rounded-xl border border-clay-200 bg-white p-4 transition hover:border-saffron-300 hover:shadow-sm"
-            >
-              <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-clay-100">
-                <Thumb
-                  src={product.shop.logo_url}
-                  alt={product.shop.name}
-                  seed={product.shop.slug}
-                  icon="🏪"
-                  width={48}
-                  height={48}
-                  className="object-cover"
-                />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold text-clay-900">{product.shop.name}</p>
-                <p className="truncate text-sm text-clay-600">
-                  {product.shop.city}
-                  {product.shop.state ? `, ${product.shop.state}` : ""}
-                </p>
-              </div>
-              <div className="shrink-0">
-                <StarRating rating={product.shop.rating} />
-              </div>
-            </Link>
+            <div className="rounded-2xl border border-clay-200 bg-white p-4 shadow-sm">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-clay-500">Sold By</p>
+              <Link
+                href={`/shop/${product.shop.slug}`}
+                className="mt-2.5 flex items-center gap-3 rounded-xl transition hover:bg-clay-50"
+              >
+                <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-clay-100 ring-1 ring-clay-200">
+                  <Thumb
+                    src={product.shop.logo_url}
+                    alt={product.shop.name}
+                    seed={product.shop.slug}
+                    icon="🏪"
+                    width={56}
+                    height={56}
+                    className="object-cover"
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-bold text-clay-900">{product.shop.name}</span>
+                  <span className="block truncate text-sm text-clay-600">
+                    {product.shop.city}
+                    {product.shop.state ? `, ${product.shop.state}` : ""}
+                  </span>
+                  <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-saffron-700">
+                    ★ {product.shop.rating.toFixed(1)} · Visit shop →
+                  </span>
+                </span>
+              </Link>
+            </div>
           )}
         </div>
       </div>

@@ -130,8 +130,8 @@ export function ProductGallery({
         sizes={
           variant === "hero"
             ? heroCount === 1
-              ? "(max-width: 1024px) 100vw, 360px"
-              : "(max-width: 1024px) 50vw, 180px"
+              ? "(max-width: 1024px) 100vw, 640px"
+              : "(max-width: 1024px) 50vw, 320px"
             : "110px"
         }
         className="object-cover"
