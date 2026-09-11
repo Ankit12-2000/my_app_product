@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { submitReview, type ReviewState } from "@/app/actions/review";
+import { IconSpinner } from "@/components/admin/icons";
 
 const initial: ReviewState = { ok: false, message: "" };
 
@@ -13,8 +14,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
     >
+      {pending && <IconSpinner className="h-4 w-4 animate-spin" />}
       {pending ? "Submitting…" : "Submit Review"}
     </button>
   );

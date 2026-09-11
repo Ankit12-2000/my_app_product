@@ -64,3 +64,34 @@ export function StatGridSkeleton({ count = 4 }: { count?: number }) {
     </div>
   );
 }
+
+/** Form-page placeholder: page header, a toolbar action, then a wide card of
+ *  labelled inputs and a submit row so form routes never flash the dashboard
+ *  skeleton. */
+export function FormSkeleton({ rows = 6, twoColumn = false }: { rows?: number; twoColumn?: boolean }) {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="mt-2 h-4 w-80 max-w-full" />
+        </div>
+      </div>
+      <div className="overflow-hidden rounded-2xl bg-white p-4 ring-1 ring-clay-100 sm:p-6">
+        <div className={twoColumn ? "grid gap-5 sm:grid-cols-2" : "space-y-5"}>
+          {Array.from({ length: rows }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+          ))}
+        </div>
+        {twoColumn && <Skeleton className="mt-5 h-10 w-full rounded-lg" />}
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-clay-100 pt-5">
+          <Skeleton className="h-10 w-32 rounded-lg" />
+          <Skeleton className="h-10 w-24 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}

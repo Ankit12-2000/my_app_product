@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { login, signup, type AuthState } from "@/app/actions/auth";
+import { IconSpinner } from "@/components/admin/icons";
 
 function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -11,8 +12,9 @@ function Submit({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
     >
+      {pending && <IconSpinner className="h-4 w-4 animate-spin" />}
       {pending ? "Please wait…" : label}
     </button>
   );

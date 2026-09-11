@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { submitVendorLead, type VendorLeadState } from "@/app/actions/vendorLead";
+import { IconSpinner } from "@/components/admin/icons";
 
 const initial: VendorLeadState = { ok: false, message: "" };
 
@@ -12,8 +13,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2 rounded-full bg-saffron-600 px-6 py-3 font-semibold text-white transition hover:bg-saffron-700 disabled:opacity-60"
     >
+      {pending && <IconSpinner className="h-4 w-4 animate-spin" />}
       {pending ? "Submitting…" : "Submit Registration"}
     </button>
   );
