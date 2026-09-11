@@ -348,10 +348,19 @@ export default async function PersonalShopPage({
 
       {/* ===== WRITE A REVIEW ===== */}
       <section className="bg-clay-50 py-16 sm:py-20">
-        <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <h2 className="text-2xl font-extrabold text-clay-900">Share Your Experience</h2>
-          <p className="mt-2 text-clay-500">Your review helps other customers find the best artisans</p>
-          <div className="mt-8 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
+        <div className="mx-auto max-w-2xl px-4 sm:px-6">
+          <div className="text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-100 px-3 py-1 text-xs font-bold text-saffron-700">
+              ⭐ Write a Review
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold text-clay-900 sm:text-4xl">
+              Share Your Experience
+            </h2>
+            <p className="mt-3 text-clay-500">
+              Your review helps other customers find the best artisans
+            </p>
+          </div>
+          <div className="mt-8 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-clay-100 sm:p-8">
             <ReviewForm shopId={shop.id} />
           </div>
         </div>
