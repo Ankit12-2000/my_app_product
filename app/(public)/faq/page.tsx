@@ -4,8 +4,8 @@ export const metadata: Metadata = { title: "FAQ" };
 
 const faqs = [
   {
-    q: "How do I buy a statue on MoortiBazaar?",
-    a: "MoortiBazaar is an inquiry-based marketplace — there is no online checkout. Find a statue you like, send an inquiry to the vendor, and they will contact you with a quotation covering price, customisation and delivery.",
+    q: "How do I buy a statue on Murti Market Online?",
+    a: "Murti Market Online is an inquiry-based marketplace — there is no online checkout. Find a statue you like, send an inquiry to the vendor, and they will contact you with a quotation covering price, customisation and delivery.",
   },
   {
     q: "Is there any payment on the website?",

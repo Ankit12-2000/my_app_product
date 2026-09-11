@@ -62,7 +62,7 @@ export function AdminShell({
         </button>
         <Link href="/admin" className="flex items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-saffron-600 text-base text-white">ॐ</span>
-          <span className="text-[15px] font-semibold tracking-tight text-clay-900">MoortiBazaar</span>
+          <span className="text-[15px] font-semibold tracking-tight text-clay-900">Murti Market Online</span>
         </Link>
         <form action={logout}>
           <button className="h-9 rounded-lg px-3 text-sm font-medium text-clay-600 transition hover:bg-clay-100">
@@ -86,7 +86,7 @@ export function AdminShell({
         <div className="flex h-14 items-center justify-between border-b border-clay-200 px-4">
           <span className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-saffron-600 text-base text-white">ॐ</span>
-            <span className="text-[15px] font-semibold tracking-tight text-clay-900">MoortiBazaar</span>
+            <span className="text-[15px] font-semibold tracking-tight text-clay-900">Murti Market Online</span>
           </span>
           <button
             onClick={() => setOpen(false)}
@@ -118,7 +118,7 @@ function Brand() {
           ॐ
         </span>
         <span className="flex min-w-0 flex-col leading-tight">
-          <span className="truncate text-[15px] font-semibold tracking-tight text-clay-900">MoortiBazaar</span>
+          <span className="truncate text-[15px] font-semibold tracking-tight text-clay-900">Murti Market Online</span>
           <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-clay-400">Admin</span>
         </span>
       </Link>

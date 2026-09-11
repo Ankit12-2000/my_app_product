@@ -82,7 +82,7 @@ export default async function VendorLeadsPage({
     <div className="space-y-5">
       <PageHeader
         title="Vendor Leads"
-        description="Registration requests from vendors who want to sell on MoortiBazaar. Review each one, then approve or reject."
+        description="Registration requests from vendors who want to sell on Murti Market Online. Review each one, then approve or reject."
       />
 
       {!isServiceRoleConfigured && (

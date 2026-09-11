@@ -122,7 +122,7 @@ export default async function ProductPage({
       {/* Breadcrumb */}
       <nav className="overflow-x-auto whitespace-nowrap text-xs text-clay-600 sm:text-sm">
         <Link href="/" className="hover:text-saffron-700">
-          MoortiBazaar
+          Murti Market Online
         </Link>
         <span className="px-1.5 text-clay-400">›</span>
         <Link href="/search" className="hover:text-saffron-700">
@@ -225,7 +225,7 @@ export default async function ProductPage({
             <div className="max-w-md">
               <ProductActions
                 productName={product.name}
-                productUrl={`https://moortibazaar.com/products/${product.slug}`}
+                productUrl={`https://murtimarket.online/products/${product.slug}`}
                 phone={product.shop.phone}
                 whatsapp={product.shop.whatsapp}
               />

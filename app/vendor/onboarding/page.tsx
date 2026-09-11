@@ -53,8 +53,8 @@ export default async function OnboardingPage() {
 
       <p className="mt-4 text-center text-xs text-clay-500">
         Need help? Write to us at{" "}
-        <a href="mailto:support@moortibazaar.com" className="font-medium text-saffron-700 hover:underline">
-          support@moortibazaar.com
+        <a href="mailto:support@murtimarket.online" className="font-medium text-saffron-700 hover:underline">
+          support@murtimarket.online
         </a>
       </p>
     </div>

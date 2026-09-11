@@ -7,7 +7,7 @@ function isSubdomain(host: string): boolean {
   const parts = hostname.split(".");
   if (parts.length < 2) return false;
   const lastTwo = parts.slice(-2).join(".");
-  const isProd = lastTwo === "moortibazaar.com";
+  const isProd = lastTwo === "murtimarket.online";
   const isDev = lastTwo === "localhost" && parts.length === 2;
   if (!isProd && !isDev) return false;
   if (isProd && parts.length >= 3) {

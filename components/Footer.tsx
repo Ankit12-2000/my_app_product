@@ -33,7 +33,7 @@ export function Footer() {
         <div className="col-span-2 sm:col-span-1">
           <div className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-saffron-600 text-white">ॐ</span>
-            <span className="text-lg font-bold">MoortiBazaar</span>
+            <span className="text-lg font-bold">Murti Market Online</span>
           </div>
           <p className="mt-3 text-sm text-clay-700">
             India&apos;s marketplace for handcrafted statues &amp; idols. Connect directly with verified artisans.
@@ -55,7 +55,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-clay-100 py-4 text-center text-xs text-clay-700">
-        © {new Date().getFullYear()} MoortiBazaar. Inquiry-based marketplace — no online payments.
+        © {new Date().getFullYear()} Murti Market Online. Inquiry-based marketplace — no online payments.
       </div>
     </footer>
   );

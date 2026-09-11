@@ -98,7 +98,7 @@ export default async function AdminDashboard() {
     <div className="space-y-6 sm:space-y-7">
       <PageHeader
         title="Dashboard"
-        description="A snapshot of everything moving through the MoortiBazaar marketplace."
+        description="A snapshot of everything moving through the Murti Market Online marketplace."
       />
 
       {attention.length > 0 ? (

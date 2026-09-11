@@ -1,4 +1,4 @@
-# MoortiBazaar — Statue Marketplace (Public Website)
+# Murti Market Online — Statue Marketplace (Public Website)
 
 Inquiry-based marketplace for Moorti / statue businesses, built with **Next.js 15 (App Router) + TypeScript + Tailwind CSS v4 + Supabase**. There is no online payment — customers browse products and send **inquiries**; vendors respond with quotations.
 

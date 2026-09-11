@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const ROOT_DOMAIN = "moortibazaar.com";
+const ROOT_DOMAIN = "murtimarket.online";
 
 function getSubdomain(hostname: string): string | null {
   const host = hostname.split(":")[0];
@@ -9,7 +9,7 @@ function getSubdomain(hostname: string): string | null {
   if (parts.length < 2) return null;
 
   const lastTwo = parts.slice(-2).join(".");
-  const isProd = lastTwo === "moortibazaar.com";
+  const isProd = lastTwo === "murtimarket.online";
   const isDev = lastTwo === "localhost" && parts.length === 2;
 
   if (!isProd && !isDev) return null;

@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: {
-    default: "MoortiBazaar — Handcrafted Statues & Idols Marketplace",
-    template: "%s · MoortiBazaar",
+    default: "Murti Market Online — Handcrafted Statues & Idols Marketplace",
+    template: "%s · Murti Market Online",
   },
   description:
     "India's inquiry-based marketplace for handcrafted Moorti, statues and idols. Search by material, deity, city and finish, then send an inquiry directly to verified artisans.",

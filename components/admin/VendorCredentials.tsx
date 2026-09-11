@@ -79,7 +79,7 @@ export function VendorCredentials({
   const [revealed, setRevealed] = useState(false);
 
   const whatsappText = password
-    ? `Namaste! MoortiBazaar par aapka vendor account ban gaya hai.\n\nLogin: ${email}\nPassword: ${password}\n\nLogin karke apni shop set up karein.`
+    ? `Namaste! Murti Market Online par aapka vendor account ban gaya hai.\n\nLogin: ${email}\nPassword: ${password}\n\nLogin karke apni shop set up karein.`
     : null;
 
   return (

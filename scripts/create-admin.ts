@@ -20,7 +20,7 @@ const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const email = "admin@moortibazaar.com";
+const email = "admin@murtimarket.online";
 const password = "Admin@123456";
 const fullName = "Super Admin";
 

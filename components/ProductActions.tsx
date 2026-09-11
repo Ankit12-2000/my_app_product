@@ -11,7 +11,7 @@ export function ProductActions({
   phone?: string | null;
   whatsapp?: string | null;
 }) {
-  const shareText = `Check out ${productName} on MoortiBazaar: ${productUrl}`;
+  const shareText = `Check out ${productName} on Murti Market Online: ${productUrl}`;
 
   const waNumber = (whatsapp || phone || "").replace(/[^0-9]/g, "");
   const waLink = waNumber

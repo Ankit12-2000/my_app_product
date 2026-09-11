@@ -22,7 +22,7 @@ export async function generateMetadata({
   if (!shop) return { title: "Shop Not Found" };
   return {
     title: `${shop.name} — ${shop.tagline || "Premium Moorti & Statue Shop"}`,
-    description: shop.description?.slice(0, 160) ?? `${shop.name} — handcrafted moorti and murti from ${shop.city || "India"}. Shop on MoortiBazaar.`,
+    description: shop.description?.slice(0, 160) ?? `${shop.name} — handcrafted moorti and murti from ${shop.city || "India"}. Shop on Murti Market Online.`,
     openGraph: {
       title: shop.name,
       description: shop.tagline ?? shop.description?.slice(0, 160) ?? "",
@@ -371,7 +371,7 @@ export default async function PersonalShopPage({
               </div>
             </div>
             <Link href="/" className="text-xs font-medium text-saffron-600 transition hover:text-saffron-700">
-              Powered by MoortiBazaar →
+              Powered by Murti Market Online →
             </Link>
           </div>
         </div>

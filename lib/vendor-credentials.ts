@@ -45,7 +45,7 @@ export function normalisePhone(phone: string): string {
 }
 
 /** Domain for generated logins. Not a real mailbox — used only as a login id. */
-export const VENDOR_LOGIN_DOMAIN = "vendor.moortibazaar.com";
+export const VENDOR_LOGIN_DOMAIN = "vendor.murtimarket.online";
 
 /**
  * The email a vendor will log in with. Prefers the address they gave us, since
