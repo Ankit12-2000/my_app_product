@@ -1,5 +1,5 @@
 -- =====================================================================
--- Moorti Marketplace - Public website schema (Phase 1)
+-- Murti Market Online - Public website schema (Phase 1)
 -- Run this in the Supabase SQL editor on a fresh project.
 -- Covers the tables the public site reads + the inquiries it writes.
 -- Vendor/admin tables from the master spec can be layered on later.

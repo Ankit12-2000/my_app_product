@@ -78,7 +78,7 @@ Run [`supabase/vendor_schema.sql`](supabase/vendor_schema.sql) (after `schema.sq
 
 ```
 URL:      /login
-Email:    vendor@moorti.test
+Email:    vendor@murti.test
 Password: Vendor@12345
 ```
 

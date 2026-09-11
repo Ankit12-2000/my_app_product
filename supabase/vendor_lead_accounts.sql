@@ -1,5 +1,5 @@
 -- =====================================================================
--- Moorti Marketplace - Vendor lead → account provisioning (Phase 4)
+-- Murti Market Online - Vendor lead → account provisioning (Phase 4)
 -- Approving a vendor lead now creates the vendor's login account and
 -- records the credentials on the lead so the admin can pass them on.
 -- Run AFTER schema.sql + vendor_schema.sql + admin_schema.sql. Idempotent.

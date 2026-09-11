@@ -1,4 +1,4 @@
-// Domain types for the Moorti marketplace public website.
+// Domain types for the Murti Market Online public website.
 // These mirror the Supabase tables defined in supabase/schema.sql.
 
 export type InquiryStatus =

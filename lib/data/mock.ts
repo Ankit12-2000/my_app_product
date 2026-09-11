@@ -148,13 +148,13 @@ export const blogPosts: BlogPost[] = [
     id: "b1", title: "How to Choose the Right Marble Murti for Your Home Temple",
     slug: "choose-right-marble-murti", excerpt: "A practical guide to size, deity, finish and placement for your puja room.",
     body: "Choosing a murti for your home temple is a deeply personal decision...\n\nConsider the size of your mandir, the deity you connect with, and the finish that suits your decor. Marble offers timeless elegance, while brass brings warmth and tradition.",
-    cover_url: img("blog1"), author: "Moorti Team", published_at: "2026-06-10T10:00:00Z",
+    cover_url: img("blog1"), author: "Murti Market Team", published_at: "2026-06-10T10:00:00Z",
   },
   {
     id: "b2", title: "Marble vs Brass vs Panchdhatu: Which Material Is Right for You?",
     slug: "marble-brass-panchdhatu", excerpt: "Understand the differences in look, durability, cost and care.",
     body: "Each material tells its own story...\n\nMarble is prized for purity and detail, brass for its golden glow, and panchdhatu for its auspicious five-metal composition.",
-    cover_url: img("blog2"), author: "Moorti Team", published_at: "2026-05-22T10:00:00Z",
+    cover_url: img("blog2"), author: "Murti Market Team", published_at: "2026-05-22T10:00:00Z",
   },
 ];
 

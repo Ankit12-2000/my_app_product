@@ -13,7 +13,7 @@ export function Header() {
               ॐ
             </span>
             <span className="truncate text-lg font-bold tracking-tight text-clay-900 sm:text-xl">
-              Moorti<span className="text-saffron-600">Bazaar</span>
+              Murti <span className="text-saffron-600">Market Online</span>
             </span>
           </Link>
 

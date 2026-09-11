@@ -1,5 +1,5 @@
 -- =====================================================================
--- Moorti Marketplace - Admin schema (Phase 3)
+-- Murti Market Online - Admin schema (Phase 3)
 -- Adds an is_admin() helper and admin-wide RLS so an admin can manage
 -- every shop, product, taxonomy, blog and banner across the marketplace.
 -- Run AFTER schema.sql + vendor_schema.sql.

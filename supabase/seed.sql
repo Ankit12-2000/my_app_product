@@ -1,5 +1,5 @@
 -- =====================================================================
--- Optional seed data for the Moorti Marketplace public site.
+-- Optional seed data for the Murti Market Online public site.
 -- Run AFTER schema.sql. Uses picsum.photos placeholder images.
 -- =====================================================================
 

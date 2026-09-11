@@ -1,5 +1,5 @@
 -- =====================================================================
--- Moorti Marketplace - Vendor portal schema (Phase 2)
+-- Murti Market Online - Vendor portal schema (Phase 2)
 -- Adds auth-linked profiles, vendor RLS, conversation + quotation tables.
 -- Run AFTER schema.sql on the same Supabase project. Idempotent-ish.
 -- =====================================================================
