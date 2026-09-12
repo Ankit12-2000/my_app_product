@@ -167,6 +167,19 @@ create table if not exists vendor_leads (
 );
 create index if not exists vendor_leads_status_idx on vendor_leads(status);
 
+-- ---------- Contact messages (contact form) ----------
+
+create table if not exists contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  subject text,
+  message text not null,
+  status text not null default 'new',
+  created_at timestamptz not null default now()
+);
+create index if not exists contact_messages_status_idx on contact_messages(status);
+
 -- =====================================================================
 -- Row Level Security
 -- Public read for catalog content; public insert (only) for inquiries.
@@ -182,6 +195,7 @@ alter table blogs          enable row level security;
 alter table banners        enable row level security;
 alter table inquiries      enable row level security;
 alter table vendor_leads   enable row level security;
+alter table contact_messages enable row level security;
 
 -- Public catalog: anyone may read approved/active rows.
 create policy "public read categories"  on categories     for select using (true);
@@ -200,3 +214,6 @@ create policy "public submit inquiry" on inquiries for insert with check (true);
 
 -- Vendor leads: anyone may submit a registration request.
 create policy "public submit vendor lead" on vendor_leads for insert with check (true);
+
+-- Contact messages: anyone may submit; nobody may read via the anon role.
+create policy "public submit contact message" on contact_messages for insert with check (true);
