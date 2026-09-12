@@ -10,6 +10,7 @@ export function ProductStickyBar({
   price,
   unit = "Piece",
   phone,
+  whatsapp,
   rating,
   reviewCount,
 }: {
@@ -17,6 +18,7 @@ export function ProductStickyBar({
   price: string;
   unit?: string;
   phone?: string | null;
+  whatsapp?: string | null;
   rating?: number;
   reviewCount?: number;
 }) {
@@ -32,6 +34,11 @@ export function ProductStickyBar({
   }, []);
 
   const phoneClean = (phone || "").replace(/[^0-9+]/g, "");
+  const waNumber = (whatsapp || phone || "").replace(/[^0-9]/g, "");
+  const shareText = `Check out ${productName} on Murti Market Online`;
+  const waLink = waNumber
+    ? `https://wa.me/${waNumber.startsWith("91") ? waNumber : `91${waNumber}`}?text=${encodeURIComponent(shareText)}`
+    : null;
 
   return (
     <div
@@ -66,11 +73,21 @@ export function ProductStickyBar({
               Call Now
             </a>
           )}
+          {waLink && (
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-[#1faa53] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#189347] sm:px-5 sm:text-sm"
+            >
+              WhatsApp
+            </a>
+          )}
           <a
             href="#inquiry"
             className="rounded-lg bg-saffron-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-saffron-700 sm:px-6 sm:text-sm"
           >
-            Send Enquiry
+            Get Price
           </a>
         </div>
       </div>
